@@ -29,19 +29,26 @@ component extends="wheels.tests.Test" {
 			table=referenceTableName,
 			type="foreignkeys"
 		);
-		
+
 		migration.dropTable(tableName);
 		migration.dropTable(referenceTableName);
 
+		// ACF10 doesn't like the UCASE which oracle needs
+		if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
+			sql="SELECT * FROM query
+				WHERE pkcolumn_name = 'id'
+				AND fktable_name = '#tableName#'
+				AND fkcolumn_name = 'barid'";
+		} else {
+			sql="SELECT * FROM query
+				WHERE pkcolumn_name = 'ID'
+				AND fktable_name = '#ucase(tableName)#'
+				AND fkcolumn_name = 'BARID'";
+		}
 		actual = $query(
 			query=info,
 			dbtype="query",
-			sql="
-				SELECT * FROM query
-				WHERE pkcolumn_name = 'ID'
-				AND fktable_name = '#ucase(tableName)#'
-				AND fkcolumn_name = 'BARID'
-			"
+			sql=sql
 		);
 
 	  assert("actual.recordCount eq 1");

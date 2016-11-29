@@ -274,8 +274,6 @@ CREATE TABLE users
 ) #loc.storageEngine#
 </cfquery>
 
->>>>>>> refs/remotes/origin/master
-
 <!--- create oracle sequences --->
 <cfif loc.db eq "oracle">
 	<cfloop list="#loc.tables#" index="loc.i">

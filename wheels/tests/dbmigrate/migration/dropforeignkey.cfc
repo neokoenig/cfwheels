@@ -29,10 +29,19 @@ component extends="wheels.tests.Test" {
 			type="foreignkeys"
 		);
 
+
+		if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
+			sql="SELECT * FROM query WHERE fktable_name = '#tableName#' AND fkcolumn_name = 'barid' AND pkcolumn_name = 'id'";
+			sql2="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'";
+		} else {
+			sql="SELECT * FROM query WHERE fktable_name = '#tableName#' AND fkcolumn_name = 'barid' AND pkcolumn_name = 'id'";
+			sql2="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'";
+		}
+
 		created = $query(
 			query=info,
 			dbtype="query",
-			sql="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'"
+			sql=sql
 		);
 
 		migration.dropForeignKey(table=tableName, keyName="FK_#tableName#_#referenceTableName#");
@@ -44,13 +53,12 @@ component extends="wheels.tests.Test" {
 		dropped = $query(
 			query=info,
 			dbtype="query",
-			sql="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'"
+			sql=sql2
 		);
 
 		migration.dropTable(tableName);
 		migration.dropTable(referenceTableName);
-
-	  assert("created.recordCount eq 1");
+	    assert("created.recordCount eq 1");
 		assert("dropped.recordCount eq 0");
 	}
 

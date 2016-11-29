@@ -20,9 +20,16 @@ component extends="wheels.tests.Test" {
 
 		migration.dropTable(tableName);
 
-		actual = $query(query=info, dbtype="query", sql="SELECT * FROM query WHERE index_name = '#ucase(indexName)#'");
+		// ACF10 doesn't like the UCASE which oracle needs
+		if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
+			sql="SELECT * FROM query WHERE index_name = '#indexName#'";
+		} else {
+			sql="SELECT * FROM query WHERE index_name = '#ucase(indexName)#'";
+		}
 
-	  assert("actual.recordCount eq 1");
+		actual = $query(query=info, dbtype="query", sql=sql);
+
+	    assert("actual.recordCount eq 1");
 		assert("actual.non_unique");
 	}
 

@@ -23,8 +23,14 @@ component extends="wheels.tests.Test" {
 				type="columns"
 			);
 			migration.dropTable(tableName);
+			// ACF10 doesn't like the UCASE which oracle needs
+			if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
+				sql="SELECT * FROM query WHERE column_name = '#columnName#'";
+			} else {
+				sql="SELECT * FROM query WHERE column_name = '#ucase(columnName)#'";
+			}
+			actual = $query(query=info, dbtype="query", sql=sql);
 
-			actual = $query(query=info, dbtype="query", sql="SELECT * FROM query WHERE column_name = '#ucase(columnName)#'");
 			assert("actual.column_size eq 50");
 			if (ListFindNoCase(actual.columnList, "is_nullable")) {
 				assert("!actual.is_nullable");
