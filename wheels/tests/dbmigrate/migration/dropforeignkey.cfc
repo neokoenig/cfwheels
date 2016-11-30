@@ -30,12 +30,10 @@ component extends="wheels.tests.Test" {
 		);
 
 
-		if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
-			sql="SELECT * FROM query WHERE fktable_name = '#tableName#' AND fkcolumn_name = 'barid' AND pkcolumn_name = 'id'";
-			sql2="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'";
+		if(application.testenv.isACF10 && application.testenv.isOracle){
+			sql="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'";
 		} else {
 			sql="SELECT * FROM query WHERE fktable_name = '#tableName#' AND fkcolumn_name = 'barid' AND pkcolumn_name = 'id'";
-			sql2="SELECT * FROM query WHERE fktable_name = '#ucase(tableName)#' AND fkcolumn_name = 'BARID' AND pkcolumn_name = 'ID'";
 		}
 
 		created = $query(
@@ -53,7 +51,7 @@ component extends="wheels.tests.Test" {
 		dropped = $query(
 			query=info,
 			dbtype="query",
-			sql=sql2
+			sql=sql
 		);
 
 		migration.dropTable(tableName);

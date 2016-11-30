@@ -17,12 +17,10 @@ component extends="wheels.tests.Test" {
 			table=tableName,
 			type="index"
 		);
-		if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
-			sql="SELECT * FROM query WHERE index_name = '#indexName#'";
-			sql2="SELECT * FROM query WHERE index_name = '#indexName#'";
-		} else {
+		if(application.testenv.isACF10 && application.testenv.isOracle){
 			sql="SELECT * FROM query WHERE index_name = '#ucase(indexName)#'";
-			sql2="SELECT * FROM query WHERE index_name = '#ucase(indexName)#'";
+		} else {
+			sql="SELECT * FROM query WHERE index_name = '#indexName#'";
 		}
 		created = $query(query=info, dbtype="query", sql=sql);
 
@@ -32,7 +30,7 @@ component extends="wheels.tests.Test" {
 			table=tableName,
 			type="index"
 		);
-		removed = $query(query=info, dbtype="query", sql=sql2);
+		removed = $query(query=info, dbtype="query", sql=sql);
 
 		migration.dropTable(tableName);
 	    assert("created.recordCount eq 1");

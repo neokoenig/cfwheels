@@ -17,4 +17,19 @@ application.wheels.transactionMode = "none";
 
 /* turn off request query caching */
 application.wheels.cacheQueriesDuringRequest = false;
+
+/* Test suite specific flags */
+
+// Is this ACF10?
+application.testenv.isACF10=false;
+if(application.wheels.serverName == 'Adobe ColdFusion' && listFirst(application.wheels.serverVersion) == '10'){
+	application.testenv.isACF10=false;
+}
+
+// Is this Oracle?
+application.testenv.isOracle=false;
+application.testenv.db=$dbinfo(datasource=application.wheels.dataSourceName, type="version");
+if(application.testenv.db.database_productname == "Oracle"){
+	application.testenv.isOracle=true;
+}
 </cfscript>
