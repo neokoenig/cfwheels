@@ -26,7 +26,7 @@ public function announce(required string message) {
 	} else if (local.info.driver_name Contains "SQLite") {
 		local.adapterName = "SQLite";
 	// NB: using mySQL adapter for H2 as the cli defaults to this for development
-	} else if (local.info.driver_name Contains "H2") {
+	//} else if (local.info.driver_name Contains "H2") {
 		// determine the emulation mode
 		/*
 		if (StructKeyExists(server, "lucee")) {
@@ -47,7 +47,7 @@ public function announce(required string message) {
 			local.adapterName = "MySQL";
 		}
 		*/
-		local.adapterName = "H2";
+		//local.adapterName = "H2";
 	} else {
 		local.adapterName = "";
 	}
