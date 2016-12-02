@@ -24,6 +24,11 @@
 
     </div>
     <hr />
+
+    <div class="row">
+      <div class="column"><p>#get("serverName")# #get("serverVersion")#</p></div>
+      <div class="column"><p>#application.testenv.db.database_productname# | #application.testenv.db.database_version# | #application.testenv.db.driver_name#</p></div>
+    </div>
     <div class="row">
       <div class="column"><p class="<cfif testResults.ok>success<cfelse>failed</cfif>">Status: <br /><cfif testResults.ok>Passed<cfelse>Failed</cfif></p></div>
       <div class="column"><p><strong>Duration</strong><br />#TimeFormat(testResults.end - testResults.begin, "HH:mm:ss")#</p></div>
