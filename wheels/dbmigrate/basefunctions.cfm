@@ -4,17 +4,18 @@ if(!StructKeyExists(variables, "$wddx")){
 }
 
 public function announce(required string message) {
-		param name="request.migrationOutput" default="";
-		Request.migrationOutput = Request.migrationOutput & arguments.message & chr(13);
-	}
+	param name="request.migrationOutput" default="";
+	Request.migrationOutput = Request.migrationOutput & arguments.message & chr(13);
+}
 
-	private string function $getDBType() {
+public string function $getDBType() {
 	local.info = $dbinfo(
 		type="version",
 		datasource=application.wheels.dataSourceName,
 		username=application.wheels.dataSourceUserName,
 		password=application.wheels.dataSourcePassword
 	);
+	local.adapterName="";
 	if (local.info.driver_name Contains "SQLServer" || local.info.driver_name Contains "Microsoft SQL Server" || local.info.driver_name Contains "MS SQL Server" || local.info.database_productname Contains "Microsoft SQL Server") {
 		local.adapterName = "MicrosoftSQLServer";
 	} else if (local.info.driver_name Contains "MySQL") {
@@ -26,30 +27,28 @@ public function announce(required string message) {
 	} else if (local.info.driver_name Contains "SQLite") {
 		local.adapterName = "SQLite";
 	// NB: using mySQL adapter for H2 as the cli defaults to this for development
-	//} else if (local.info.driver_name Contains "H2") {
-		// determine the emulation mode
-		/*
-		if (StructKeyExists(server, "lucee")) {
-			local.connectionString = GetApplicationMetaData().datasources[application.wheels.dataSourceName].connectionString;
-		} else {
-			// TODO: use the coldfusion class to dig out dsn info
-			local.connectionString = "";
-		}
-		if (local.connectionString Contains "mode=SQLServer" || local.connectionString Contains "mode=Microsoft SQL Server" || local.connectionString Contains "mode=MS SQL Server" || local.connectionString Contains "mode=Microsoft SQL Server") {
-			local.adapterName = "MicrosoftSQLServer";
-		} else if (local.connectionString Contains "mode=MySQL") {
-			local.adapterName = "MySQL";
-		} else if (local.connectionString Contains "mode=Oracle") {
-			local.adapterName = "Oracle";
-		} else if (local.connectionString Contains "mode=PostgreSQL") {
-			local.adapterName = "PostgreSQL";
-		} else {
-			local.adapterName = "MySQL";
-		}
-		*/
-		//local.adapterName = "H2";
+	} else if (local.info.driver_name Contains "H2") {
+	// determine the emulation mode
+	/*
+	if (StructKeyExists(server, "lucee")) {
+		local.connectionString = GetApplicationMetaData().datasources[application.wheels.dataSourceName].connectionString;
 	} else {
-		local.adapterName = "";
+		// TODO: use the coldfusion class to dig out dsn info
+		local.connectionString = "";
+	}
+	if (local.connectionString Contains "mode=SQLServer" || local.connectionString Contains "mode=Microsoft SQL Server" || local.connectionString Contains "mode=MS SQL Server" || local.connectionString Contains "mode=Microsoft SQL Server") {
+		local.adapterName = "MicrosoftSQLServer";
+	} else if (local.connectionString Contains "mode=MySQL") {
+		local.adapterName = "MySQL";
+	} else if (local.connectionString Contains "mode=Oracle") {
+		local.adapterName = "Oracle";
+	} else if (local.connectionString Contains "mode=PostgreSQL") {
+		local.adapterName = "PostgreSQL";
+	} else {
+		local.adapterName = "MySQL";
+	}
+	*/
+		local.adapterName = "H2";
 	}
 	return local.adapterName;
 }
