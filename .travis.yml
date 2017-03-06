@@ -6,7 +6,6 @@ jdk:
 - oraclejdk8
 env:
   matrix:
-    fast_finish: true
     - SERV=lucee4 DB=mysql
 before_install:
   # Get Commandbox
@@ -18,7 +17,7 @@ install:
 - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Install Wheels CLI
 - box install cfwheels-cli
-before_script:before_install:
+before_script:
   # Create databases
 - mysql -e 'CREATE DATABASE wheelstestdb;'
 - box cp 'src/cb/$SERV_$DB.cfm '`server info property=serverHomeDirectory`/WEB-INF/lucee-web/lucee-web.xml.cfm'"
