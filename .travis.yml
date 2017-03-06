@@ -8,7 +8,8 @@ jdk:
 env:
   matrix:
     - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=localhost PORT=3306 user=root
-    - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=localhost PORT=5432 user=postgres
+    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=localhost PORT=3306 user=root
+    #- CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=localhost PORT=5432 user=postgres
 before_install:
   # Get Commandbox
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
@@ -24,7 +25,7 @@ install:
 before_script:
   # Create databases
 - mysql -e 'CREATE DATABASE wheelstestdb;'
-- psql -c 'create database wheelstestdb;' -U postgres
+#- psql -c 'create database wheelstestdb;' -U postgres
   # Start The Server
 - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
