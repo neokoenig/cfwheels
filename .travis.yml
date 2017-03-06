@@ -6,7 +6,7 @@ jdk:
 - oraclejdk8
 env:
   matrix:
-    - SERV=lucee4 DB=mysql
+    - SERV=lucee4 CONFIG=src/cb/mysql.json
 before_install:
   # Get Commandbox
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
@@ -17,12 +17,15 @@ install:
 - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Install Wheels CLI
 - box install cfwheels-cli
+  # Install CFConfig
+- box install commandbox-cfconfig
 before_script:
   # Create databases
 - mysql -e 'CREATE DATABASE wheelstestdb;'
-- box cp 'src/cb/$SERV_$DB.cfm '`server info property=serverHomeDirectory`/WEB-INF/lucee-web/lucee-web.xml.cfm'"
   # Start The Server
-- box server start $SERV app.webxml='src/cb/$SERV_$DB.xml.cfm'
+- box server start $SERV
+  # Add the datasource via CFConfig
+- box cfconfig import from=$CONFIG
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
 script: >
   testResults="$(box wheels test core $SERV )";

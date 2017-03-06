@@ -1,0 +1,37 @@
+{
+    "searchResultsets":"yes",
+    "mergeURLAndForm":"no",
+    "requestTimeout":"0,0,0,50",
+    "clientCookies":"yes",
+    "scopeCascading":"standard",
+    "datasources":{
+        "wheelstestdb":{
+            "CLOB":"true",
+            "STORAGE":"false",
+            "METACACHETIMEOUT":"60000",
+            "ALLOW":"511",
+            "BLOB":"true",
+            "HOST":"localhost",
+            "DBDRIVER":"PostgreSql",
+            "DATABASE":"wheelstestdb",
+            "DSN":"jdbc:postgresql://{host}:{port}/{database}",
+            "CUSTOM":"",
+            "PORT":"5432",
+            "CLASS":"org.postgresql.Driver",
+            "VALIDATE":"false",
+            "USERNAME":"root",
+            "CONNECTIONTIMEOUT":"1"
+        }
+    },
+    "applicationListener":"mixed",
+    "sessionMangement":"yes",
+    "hspw":"e18e2cc6f4e5dd7a7b51f084ee0e1570def7b65176a67eab8617e5011398cd36",
+    "defaultHspw":"e18e2cc6f4e5dd7a7b51f084ee0e1570def7b65176a67eab8617e5011398cd36",
+    "timeServer":"pool.ntp.org",
+    "sessionTimeout":"0,0,30,0",
+    "clientTimeout":"90,0,0,0",
+    "adminSalt":"317BC48C-ABE9-49E3-973C4B51CEFAE8C8",
+    "applicationMode":"curr2root",
+    "clientManagement":"no",
+    "applicationTimeout":"1,0,0,0"
+}
