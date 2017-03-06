@@ -20,6 +20,6 @@ before_script:
 script: >
   testResults="$(box wheels test core $SERV )";
   echo "$testResults"; 
-  if grep -i "\[(Failures|Errors): [1-9][0-9]\?[0-9]\?\]\|\[Errors: [1-9][0-9]\?[0-9]\?\]\|<t[^>]*>\|<b[^>]*>" <<< $testResults;  then exit 1; fi
+  if grep -i "\Tests Complete: All Good!" <<< $testResults;  then exit 1; fi
 notifications:
     email: false
