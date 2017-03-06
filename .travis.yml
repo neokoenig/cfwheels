@@ -6,7 +6,7 @@ jdk:
 - oraclejdk8
 env:
   matrix:
-    - SERV=lucee4 CONFIG=src/cb/mysql.json
+    - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=localhost PORT=3306
 before_install:
   # Get Commandbox
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
@@ -23,12 +23,14 @@ before_script:
   # Create databases
 - mysql -e 'CREATE DATABASE wheelstestdb;'
   # Start The Server
-- box server start $SERV
+- box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-- box cfconfig import from=$CONFIG
+- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER host=$HOST port=$PORT username=root blob=true clob=true
+  # Restart Server to refresh config
+- box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
 script: >
-  testResults="$(box wheels test core $SERV )";
+  testResults="$(box wheels test core cfwheels )";
   echo "$testResults";
   if ! grep -i "\Tests Complete: All Good!" <<< $testResults;  then exit 1; fi
 notifications:
