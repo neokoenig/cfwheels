@@ -9,7 +9,7 @@ env:
   matrix:
     - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=localhost user=root
     - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=localhost user=root
-    - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=localhost user=postgres
+    - CFENGINE=lucee@4 DBDRIVER=postgresql HOST=localhost user=postgres
 before_install:
   # Get Commandbox
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
