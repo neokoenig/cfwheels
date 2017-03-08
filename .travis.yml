@@ -35,7 +35,7 @@ before_script:
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
   - box cfconfig datasource list
-script: 
+script: >
   testResults="$(box wheels test core cfwheels )";
   echo "$testResults";
   if ! grep -i "\Tests Complete: All Good!" <<< $testResults;  then exit 1; fi
