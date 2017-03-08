@@ -26,10 +26,12 @@ before_script:
   # Create databases
 - mysql -e 'CREATE DATABASE wheelstestdb;'
 - psql -c 'create database wheelstestdb;' -U postgres
-  # Add the datasource via CFConfig
-- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER host=$HOST username=$USER blob=true clob=true
   # Start The Server
 - box server start cfengine=$CFENGINE
+  # Add the datasource via CFConfig
+- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER host=$HOST username=$USER blob=true clob=true
+  # REStart The Server
+- box server resstart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
 script: >
   testResults="$(box wheels test core cfwheels )";
