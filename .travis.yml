@@ -30,10 +30,12 @@ before_script:
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
   - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER port=$PORT host=$HOST username=$USER blob=true clob=true
+  - box cfconfig datasource list 
   # REStart The Server
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
-script: >
+  - box cfconfig datasource list
+script: 
   testResults="$(box wheels test core cfwheels )";
   echo "$testResults";
   if ! grep -i "\Tests Complete: All Good!" <<< $testResults;  then exit 1; fi
