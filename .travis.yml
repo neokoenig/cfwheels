@@ -8,8 +8,13 @@ jdk:
 env:
   matrix:
     - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
-    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
     - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@5 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
+    - CFENGINE=adobe@11 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=adobe@11 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
+    - CFENGINE=adobe@2016 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=adobe@2016 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
 before_install:
   # Get Commandbox
   - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
