@@ -18,7 +18,6 @@ public void function onApplicationStart() {
 	}
 
 	// check and store server engine name, throw error if using a version that we don't support
-	// NB Lucee first as there seems to be some sort of alias in Lucee -> Railo which means server.railo exists
 	if (StructKeyExists(server, "lucee")) {
 		application.$wheels.serverName = "Lucee";
 		application.$wheels.serverVersion = server.lucee.version;
@@ -244,8 +243,8 @@ public void function onApplicationStart() {
 	application.$wheels.functions.autoLink = {link="all"};
 	application.$wheels.functions.average = {distinct=false, parameterize=true, ifNull=""};
 	application.$wheels.functions.belongsTo = {joinType="inner"};
-	application.$wheels.functions.buttonTo = {onlyPath=true, host="", protocol="", port=0, text="", confirm="", image="", disable=""};
-	application.$wheels.functions.buttonTag = {type="submit", value="save", content="Save changes", image="", disable="", prepend="", append=""};
+	application.$wheels.functions.buttonTo = {onlyPath=true, host="", protocol="", port=0, text="", confirm="", image=""};
+	application.$wheels.functions.buttonTag = {type="submit", value="save", content="Save changes", image="", prepend="", append=""};
 	application.$wheels.functions.caches = {time=60, static=false};
 	application.$wheels.functions.checkBox = {label="useDefaultLabel", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel="", errorElement="span", errorClass="fieldWithErrors", checkedValue=1, unCheckedValue=0};
 	application.$wheels.functions.checkBoxTag = {label="", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel="", value=1};
@@ -308,7 +307,7 @@ public void function onApplicationStart() {
 	application.$wheels.functions.simpleFormat = {wrap=true};
 	application.$wheels.functions.startFormTag = {onlyPath=true, host="", protocol="", port=0, method="post", multipart=false, spamProtection=false, prepend="", append=""};
 	application.$wheels.functions.styleSheetLinkTag = {type="text/css", media="all", head=false};
-	application.$wheels.functions.submitTag = {value="Save changes", image="", disable="", prepend="", append=""};
+	application.$wheels.functions.submitTag = {value="Save changes", image="", prepend="", append=""};
 	application.$wheels.functions.sum = {distinct=false, parameterize=true, ifNull=""};
 	application.$wheels.functions.textArea = {label="useDefaultLabel", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel="", errorElement="span", errorClass="fieldWithErrors"};
 	application.$wheels.functions.textAreaTag = {label="", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel=""};

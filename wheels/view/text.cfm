@@ -3,18 +3,12 @@
 /**
  * Turns all URLs and email addresses into hyperlinks.
  *
- * ```
- * #autoLink("Download CFWheels from http://cfwheels.org/download")#
- * -> Download CFWheels from <a href="http://cfwheels.org/download">http://cfwheels.org/download</a>
+ * [section: View Helpers]
+ * [category: Text Functions]
  *
- * #autoLink("Email us at info@cfwheels.org")#
- * -> Email us at <a href="mailto:info@cfwheels.org">info@cfwheels.org</a>
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
  * @text The text to create links in.
  * @link Whether to link URLs, email addresses or both. Possible values are: all (default), URLs and emailAddresses.
- * @relative Should we autolink relative urls
+ * @relative Should we autolink relative urls.
  *
  */
 public string function autoLink(required string text, string link, boolean relative=true) {
@@ -76,12 +70,9 @@ public string function $autoLinkLoop(required string text, required string regex
 /**
  * Extracts an excerpt from text that matches the first instance of a given phrase.
  *
- * ```
- * #excerpt(text="ColdFusion CFWheels is a Rails-like MVC framework for Adobe ColdFusion, Railo and Lucee", phrase="framework", radius=5)#
- * -> ... MVC framework for ...
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
+ * [section: View Helpers]
+ * [category: Text Functions]
+ *
  * @text The text to extract an excerpt from.
  * @phrase The phrase to extract.
  * @radius Number of characters to extract surrounding the phrase.
@@ -124,12 +115,9 @@ public string function excerpt(required string text, required string phrase, num
 /**
  * Highlights the phrase(s) everywhere in the text if found by wrapping it in a span tag.
  *
- * ```
- * #highlight(text="You searched for: Wheels", phrases="Wheels")#
- * -> You searched for: <span class="highlight">Wheels</span>
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
+ * [section: View Helpers]
+ * [category: Text Functions]
+ *
  * @text Text to search.
  * @phrases List of phrases to highlight.
  * @delimiter Delimiter to use in phrases argument.
@@ -183,28 +171,9 @@ public string function highlight(
 /**
  * Replaces single newline characters with HTML break tags and double newline characters with HTML paragraph tags (properly closed to comply with XHTML standards).
  *
- * ```
- * <!--- How most of your calls will look --->
- * #simpleFormat(post.bodyText)#
- * <!--- Demonstrates what output looks like with specific data --->
- * <cfsavecontent variable="comment">
- * 	I love this post!
- * 	Here''s why:
- * 	* Short
- * 	* Succinct
- * 	* Awesome
- * </cfsavecontent>
- * #simpleFormat(comment)#
- * -> <p>I love this post!</p>
- *    <p>
- *        Here''s why:<br />
- * 	   * Short<br />
- * 	   * Succinct<br />
- * 	   * Awesome
- *    </p>
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
+ * [section: View Helpers]
+ * [category: Text Functions]
+ *
  * @text The text to format.
  * @wrap Set to true to wrap the result in a paragraph.
  *
@@ -229,12 +198,9 @@ public string function simpleFormat(required string text, boolean wrap) {
 /**
  * Capitalizes all words in the text to create a nicer looking title.
  *
- * ```
- * #titleize("Wheels is a framework for ColdFusion")#
- * -> CFWheels Is A Framework For ColdFusion
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
+ * [section: View Helpers]
+ * [category: Text Functions]
+ *
  * @word The text to turn into a title.
  *
  */
@@ -250,14 +216,9 @@ public string function titleize(required string word) {
 /**
  * Truncates text to the specified length and replaces the last characters with the specified truncate string (which defaults to "...").
  *
- * ```
- * #truncate(text="Wheels is a framework for ColdFusion", length=20)#
- * -> CFWheels is a frame...
- * #truncate(text="Wheels is a framework for ColdFusion", truncateString=" (more)")#
- * -> CFWheels is a framework f (more)
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
+ * [section: View Helpers]
+ * [category: Text Functions]
+ *
  * @text The text to truncate.
  * @length Length to truncate the text to.
  * @truncateString String to replace the last characters with.
@@ -276,15 +237,9 @@ public string function truncate(required string text, numeric length, string tru
 /**
  * Truncates text to the specified length of words and replaces the remaining characters with the specified truncate string (which defaults to "...").
  *
- * ```
- * #wordTruncate(text="Wheels is a framework for ColdFusion", length=4)#
- * -> CFWheels is a framework...
+ * [section: View Helpers]
+ * [category: Text Functions]
  *
- * #wordTruncate(text="Wheels is a framework for ColdFusion", truncateString=" (more)")#
- * -> CFWheels is a framework for (more)
- * ```
- * @doc.section View Helpers
- * @doc.category Text Functions
  * @text The text to truncate.
  * @length Number of words to truncate the text to.
  * @truncateString String to replace the last characters with.

@@ -1,5 +1,14 @@
 <cfscript>
-
+/**
+ * Builds and returns a string containing the closing form tag.
+ *
+ * [section: View Helpers]
+ * [category: General Form Functions]
+ *
+ * @prepend See documentation for textField
+ * @append See documentation for textField
+ *
+ */
 public string function endFormTag(string prepend, string append) {
 	$args(name="endFormTag", args=arguments);
 	if (StructKeyExists(request.wheels, "currentFormMethod")) {
@@ -7,7 +16,29 @@ public string function endFormTag(string prepend, string append) {
 	}
 	return arguments.prepend & "</form>" & arguments.append;
 }
-
+/**
+ * Builds and returns a string containing the opening form tag. The form's action will be built according to the same rules as URLFor. Note: Pass any additional arguments like class, rel, and id, and the generated tag will also include those values as HTML attributes.
+ *
+ * [section: View Helpers]
+ * [category: General Form Functions]
+ *
+ * @method The type of method to use in the form tag. get and post are the options.
+ * @multipart Set to true if the form should be able to upload files.
+ * @spamProtection Set to true to protect the form against spammers (done with JavaScript).
+ * @route Name of a route that you have configured in config/routes.cfm.
+ * @controller Name of the controller to include in the URL.
+ * @action Name of the action to include in the URL.
+ * @key Key(s) to include in the URL.
+ * @params Any additional parameters to be set in the query string (example: wheels=cool&x=y). Please note that CFWheels uses the & and = characters to split the parameters and encode them properly for you (using URLEncodedFormat() internally). However, if you need to pass in & or = as part of the value, then you need to encode them (and only them), example: a=cats%26dogs%3Dtrouble!&b=1.
+ * @anchor Sets an anchor name to be appended to the path.
+ * @onlyPath If true, returns only the relative URL (no protocol, host name or port).
+ * @host Set this to override the current host.
+ * @protocol Set this to override the current protocol.
+ * @port Set this to override the current port number.
+ * @prepend String to prepend to the form control. Useful to wrap the form control with HTML tags.
+ * @append String to append to the form control. Useful to wrap the form control with HTML tags.
+ *
+ */
 public string function startFormTag(
 	string method,
 	boolean multipart,
@@ -95,63 +126,68 @@ public string function startFormTag(
 	return local.rv;
 }
 
+/**
+ * Builds and returns a string containing a submit button form control. Note: Pass any additional arguments like class, rel, and id, and the generated tag will also include those values as HTML attributes.
+ *
+ * [section: View Helpers]
+ * [category: General Form Functions]
+ *
+ * @value Save changes Message to display in the button form control.
+ * @image File name of the image file to use in the button form control.
+ * @prepend See documentation for textField
+ * @append See documentation for textField
+ *
+ */
 public string function submitTag(
 	string value,
 	string image,
-	any disable,
 	string prepend,
 	string append
 ) {
 	$args(name="submitTag", reserved="type,src", args=arguments);
 	local.rv = arguments.prepend;
 	local.append = arguments.append;
-	if (Len(arguments.disable)) {
-		local.onclick = "this.disabled=true;";
-		if (!Len(arguments.image) && !IsBoolean(arguments.disable)) {
-			local.onclick &= "this.value='#JSStringFormat(arguments.disable)#';";
-		}
-		local.onclick &= "this.form.submit();";
-		arguments.onclick = $addToJavaScriptAttribute(name="onclick", content=local.onclick, attributes=arguments);
-	}
 	if (Len(arguments.image)) {
 		// create an img tag and then just replace "img" with "input"
 		arguments.type = "image";
 		arguments.source = arguments.image;
 		StructDelete(arguments, "value");
 		StructDelete(arguments, "image");
-		StructDelete(arguments, "disable");
 		StructDelete(arguments, "append");
 		StructDelete(arguments, "prepend");
 		local.rv &= imageTag(argumentCollection=arguments);
 		local.rv = Replace(local.rv, "<img", "<input");
 	} else {
 		arguments.type = "submit";
-		local.rv &= $tag(name="input", close=true, skip="image,disable,append,prepend", attributes=arguments);
+		local.rv &= $tag(name="input", close=true, skip="image,append,prepend", attributes=arguments);
 	}
 	local.rv &= local.append;
 	return local.rv;
 }
 
+/**
+ * Builds and returns a string containing a button form control.
+ *
+ * [section: View Helpers]
+ * [category: General Form Functions]
+ *
+ * @content Save changes Content to display inside the button.
+ * @type The type for the button: button, reset, or submit.
+ * @value The value of the button when submitted.
+ * @image File name of the image file to use in the button form control.
+ * @prepend See documentation for textField
+ * @append See documentation for textField
+ *
+ */
 public string function buttonTag(
 	string content,
 	string type,
 	string value,
 	string image,
-	any disable,
 	string prepend,
 	string append
 ) {
 	$args(name="buttonTag", args=arguments);
-
-	// add onclick attribute to disable the form button
-	if (Len(arguments.disable)) {
-		local.onclick = "this.disabled=true;";
-		if (!Len(arguments.image) && !IsBoolean(arguments.disable)) {
-			local.onclick &= "this.value='#JSStringFormat(arguments.disable)#';";
-		}
-		local.onclick &= "this.form.submit();";
-		arguments.onclick = $addToJavaScriptAttribute(name="onclick", content=local.onclick, attributes=arguments);
-	}
 
 	// if image is specified then use that as the content
 	if (Len(arguments.image)) {
@@ -167,7 +203,6 @@ public string function buttonTag(
 	local.append = arguments.append;
 	StructDelete(arguments, "content");
 	StructDelete(arguments, "image");
-	StructDelete(arguments, "disable");
 	StructDelete(arguments, "prepend");
 	StructDelete(arguments, "append");
 
@@ -175,6 +210,9 @@ public string function buttonTag(
 	return local.prepend & $element(name="button", content=local.content, attributes=arguments) & local.append;
 }
 
+/**
+ * Internal function.
+ */
 public string function $formValue(required any objectName, required string property, boolean applyHtmlEditFormat=true) {
 	if (IsStruct(arguments.objectName)) {
 		local.rv = arguments.objectName[arguments.property];
@@ -195,6 +233,9 @@ public string function $formValue(required any objectName, required string prope
 	return local.rv;
 }
 
+/**
+ * Internal function.
+ */
 public any function $maxLength(required any objectName, required string property) {
 	if (StructKeyExists(arguments, "maxlength")) {
 		local.rv = arguments.maxlength;
@@ -212,6 +253,9 @@ public any function $maxLength(required any objectName, required string property
 	}
 }
 
+/**
+ * Internal function.
+ */
 public boolean function $formHasError(required any objectName, required string property) {
 	local.rv = false;
 	if (!IsStruct(arguments.objectName)) {
@@ -226,6 +270,9 @@ public boolean function $formHasError(required any objectName, required string p
 	return local.rv;
 }
 
+/**
+ * Internal function.
+ */
 public string function $createLabel(
 	required any objectName,
 	required string property,
@@ -248,6 +295,9 @@ public string function $createLabel(
 	return local.rv;
 }
 
+/**
+ * Internal function.
+ */
 public string function $formBeforeElement(
 	required any objectName,
 	required string property,
@@ -283,6 +333,9 @@ public string function $formBeforeElement(
 	return local.rv;
 }
 
+/**
+ * Internal function.
+ */
 public string function $formAfterElement(
 	required any objectName,
 	required string property,
@@ -316,6 +369,9 @@ public string function $formAfterElement(
 	return local.rv;
 }
 
+/**
+ * Internal function.
+ */
 public string function $getFieldLabel(required any objectName, required string property, required string label) {
 	local.object = false;
 	if (Compare("false", arguments.label) == 0) {

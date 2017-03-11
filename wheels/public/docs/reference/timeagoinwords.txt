@@ -1,0 +1,2 @@
+aWhileAgo = Now() - 30>
+#timeAgoInWords(aWhileAgo)#
