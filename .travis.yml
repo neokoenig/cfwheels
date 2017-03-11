@@ -4,35 +4,37 @@ services:
   - mysql
   - postgresql
 jdk:
-- oraclejdk8
+  - oraclejdk8
 env:
   matrix:
-    - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=localhost user=root
-    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=localhost user=root
-    - CFENGINE=lucee@4 DBDRIVER=postgresql HOST=localhost user=postgres
+    - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root
+    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root
+    - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres
 before_install:
   # Get Commandbox
-- sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
-- sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
-  /etc/apt/sources.list.d/commandbox.list
+  - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
+  - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a /etc/apt/sources.list.d/commandbox.list
 install:
   # Install Commandbox
-- sudo apt-get update && sudo apt-get --assume-yes install commandbox
+  - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   # Install Wheels CLI
-- box install cfwheels-cli
+  - box version
+  - box install cfwheels-cli
   # Install CFConfig
-- box install commandbox-cfconfig
+  - box install commandbox-cfconfig
 before_script:
   # Create databases
-- mysql -e 'CREATE DATABASE wheelstestdb;'
-- psql -c 'create database wheelstestdb;' -U postgres
+  - mysql -e 'CREATE DATABASE wheelstestdb;'
+  - psql -c 'create database wheelstestdb;' -U postgres
   # Start The Server
-- box server start cfengine=$CFENGINE
+  - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER host=$HOST username=$USER blob=true clob=true
-  # Restart Server to refresh config
-- box server restart
+  - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER port=$PORT host=$HOST username=$USER blob=true clob=true
+  - box cfconfig datasource list 
+  # REStart The Server
+  - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
+  - box cfconfig datasource list
 script: >
   testResults="$(box wheels test core cfwheels )";
   echo "$testResults";
