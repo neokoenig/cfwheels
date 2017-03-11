@@ -11,7 +11,7 @@ env:
     #- CFENGINE=lucee@4 DB=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
     #- CFENGINE=lucee@5 DB=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=lucee@5 DB=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
-    - CFENGINE=adobe@11 DB=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=adobe@11 DB=MySQL
     #- CFENGINE=adobe@11 DB=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
     #- CFENGINE=adobe@2016 DB=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=adobe@2016 DB=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
@@ -34,9 +34,10 @@ before_script:
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-  - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class=$DBCLASS port=$PORT host=$HOST username=$USER blob=true clob=true
+  - if [["$DB" == "MySQL"]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=MySQL class=org.gjt.mm.mysql.Driver port=3306 host=127.0.0.1 username=root blob=true clob=true; fi
+  - if [["$DB" == "PostgreSql"]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=PostgreSql class=org.postgresql.Driver port=5432 host=127.0.0.1 username=postgres blob=true clob=true; fi
   # Disable sitewide error handler for ACF
-  - if ["$CFENGINE" = "adobe@11"]; then box cfconfig generalErrorTemplate=""; fi
+  - if [["$CFENGINE" == "adobe@11"]; then box cfconfig generalErrorTemplate=""; fi
   # Restart The Server
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
