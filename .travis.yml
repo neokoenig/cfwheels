@@ -36,7 +36,7 @@ before_script:
   # Add the datasource via CFConfig
   - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class=$DBCLASS port=$PORT host=127.0.0.1 username=$USER blob=true clob=true
   # Disable sitewide error handler for ACF
-  - if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
+  #- if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
   # Restart The Server
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
