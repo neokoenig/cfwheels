@@ -7,9 +7,9 @@ jdk:
   - oraclejdk8
 env:
   matrix:
-    - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root
-    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root
-    - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres
+    - CFENGINE=lucee@4 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@5 DBDRIVER=MySQL HOST=127.0.0.1 PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@4 DBDRIVER=PostgreSql HOST=127.0.0.1 PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
 before_install:
   # Get Commandbox
   - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
@@ -29,8 +29,7 @@ before_script:
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-  - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER port=$PORT host=$HOST username=$USER blob=true clob=true
-  - box cfconfig datasource list 
+  - box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DBDRIVER class=$DBCLASS port=$PORT host=$HOST username=$USER blob=true clob=true
   # REStart The Server
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
