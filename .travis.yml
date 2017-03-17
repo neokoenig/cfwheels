@@ -7,11 +7,14 @@ jdk:
   - oraclejdk8
 env:
   matrix:
-    - CFENGINE=lucee@4 DB=MySQL PORT=3306 USER=root
-    - CFENGINE=lucee@5 DB=MySQL PORT=3306 USER=root
-    - CFENGINE=lucee@4 DB=PostgreSql PORT=5432 USER=postgres
-    - CFENGINE=lucee@5 DB=PostgreSql PORT=5432 USER=postgres
-    - CFENGINE=adobe@11 DB=MySQL5 USER=postgres
+    #  'MSSQL' : 'PostgreSQL' : 'Oracle' : 'MySQL' : 'DB2' : 'H2' :
+    # MySQL
+    - CFENGINE=lucee@4 DB=MySQL PORT=3306 USER=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@5 DB=MySQL PORT=3306 USER=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=adobe@11 DB=MySQL USER=root DBCLASS=com.mysql.jdbc.Driver
+    # PostgreSQL
+    - CFENGINE=lucee@4 DB=PostgreSQL PORT=5432 USER=postgres DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@5 DB=PostgreSQL PORT=5432 USER=postgres DBCLASS=org.postgresql.Driver
     #- CFENGINE=adobe@11 DB=PostgreSql PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
     #- CFENGINE=adobe@2016 DB=MySQL PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=adobe@2016 DB=PostgreSql PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
