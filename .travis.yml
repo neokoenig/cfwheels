@@ -9,11 +9,11 @@ env:
   matrix:
     #  'MSSQL' : 'PostgreSQL' : 'Oracle' : 'MySQL' : 'DB2' : 'H2' :
     # Lucee MySQL
-    - CFENGINE=lucee@4.5.5+006 DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=root DBCLASS=org.gjt.mm.mysql.Driver
-    - CFENGINE=lucee@5.1.2+24 DB=MySQL HOST=127.0.0.1  PORT=3306 USERNAME=root DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@4.5.5+006 DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=travis DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@5.1.2+24  DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=travis DBCLASS=org.gjt.mm.mysql.Driver
     # Lucee PostgreSQL
-    - CFENGINE=lucee@4.5.5+006 DB=PostgreSQL HOST=127.0.0.1 PORT=5432 USERNAME=postgres DBCLASS=org.postgresql.Driver
-    - CFENGINE=lucee@5.1.2+24 DB=PostgreSQL HOST=127.0.0.1 PORT=5432 USERNAME=postgres DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@4.5.5+006 DB=PostgreSQL HOST=127.0.0.1 PORT=5432 USERNAME=travis DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@5.1.2+24  DB=PostgreSQL HOST=127.0.0.1 PORT=5432 USERNAME=travis DBCLASS=org.postgresql.Driver
 
     #- CFENGINE=adobe@11.0.11+301867 DB=MySQL HOST=127.0.0.1 USERNAME=root DBCLASS=com.mysql.jdbc.Driver
     #- CFENGINE=adobe@11 DB=PostgreSql PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
@@ -33,7 +33,7 @@ install:
   - box install commandbox-cfconfig
 before_script:
   # Create databases
-  - if [[ "$DB" == "MySQL" ]] || [[ "$DB" == "MySQL5" ]]; then mysql -e 'CREATE DATABASE wheelstestdb;'; fi
+  - if [[ "$DB" == "MySQL" ]]; then mysql -e 'CREATE DATABASE wheelstestdb;'; fi
   - if [[ "$DB" == "PostgreSql" ]]; then psql -c 'create database wheelstestdb;' -U postgres; fi
   # Start The Server
   - box server start cfengine=$CFENGINE
