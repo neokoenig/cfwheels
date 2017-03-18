@@ -7,14 +7,13 @@ jdk:
   - oraclejdk8
 env:
   matrix:
-    #
-    #  'MSSQL' : 'PostgreSQL' : 'Oracle' : 'MySQL' : 'DB2' : 'H2' :
     - CFENGINE=lucee@4.5.5+006 DB=H2 MODE=MySQL
     - CFENGINE=lucee@4.5.5+006 DB=H2 MODE=PostgreSQL
     - CFENGINE=lucee@4.5.5+006 DB=H2 MODE=Oracle
     - CFENGINE=lucee@4.5.5+006 DB=H2 MODE=MSSQLServer
 
-    - CFENGINE=lucee@5.1.2+24  DB=H2 MODE=MySQL
+    - CFENGINE=lucee@5.1.2+24  DB=H2 MODE=MySQL DBCLASS=org.gjt.mm.mysql.Driver
+
     #- CFENGINE=lucee@4.5.5+006 DB=MySQL MODE= DBCLASS=org.gjt.mm.mysql.Driver
     # Lucee MySQL
     #- CFENGINE=lucee@4.5.5+006 DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=travis DBCLASS=org.gjt.mm.mysql.Driver
