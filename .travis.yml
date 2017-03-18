@@ -40,7 +40,7 @@ install:
 before_script:
   # Create databases
   - if [[ "$DB" == "MySQL" ]]; then mysql -e 'CREATE DATABASE wheelstestdb;'; fi
-  - if [[ "$DB" == "PostgreSql" ]]; then psql -c 'create database wheelstestdb;' -U postgres; fi
+  - if [[ "$DB" == "PostgreSQL" ]]; then psql -c 'create database wheelstestdb;' -U postgres; fi
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
