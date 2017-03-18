@@ -1,4 +1,4 @@
-component extends="wheels.Test" output=false {
+component extends="wheels.Test" {
 
 	/*
 	 * Executes once before the test suite runs.

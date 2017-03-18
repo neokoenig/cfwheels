@@ -1,5 +1,7 @@
 <cfscript>
-
+/**
+* Internal Function
+*/
 public any function $initModelClass(required string name, required string path) {
 	variables.wheels = {};
 	variables.wheels.errors = [];
@@ -49,7 +51,7 @@ public any function $initModelClass(required string name, required string path) 
 	if (StructKeyExists(variables, "init")) {
 		init();
 	} else if (get("modelRequireInit")) {
-		$throw(
+		Throw(
 			type="Wheels.ModelInitMissing",
 			message="An init function is required for Model: #variables.wheels.class.modelName#",
 			extendedInfo="Create an init function in /models/#variables.wheels.class.modelName#"
@@ -165,7 +167,7 @@ public any function $initModelClass(required string name, required string path) 
 
 		// Raise error when no primary key has been defined for the table.
 		if (!Len(primaryKeys())) {
-			$throw(
+			Throw(
 				type="Wheels.NoPrimaryKey",
 				message="No primary key exists on the `#tableName()#` table.",
 				extendedInfo="Set an appropriate primary key on the `#tableName()#` table."
@@ -208,6 +210,9 @@ public any function $initModelClass(required string name, required string path) 
 	return this;
 }
 
+/**
+* Internal Function
+*/
 public any function $assignAdapter() {
 	if (get("showErrorInformation")) {
 		try {
@@ -218,7 +223,7 @@ public any function $assignAdapter() {
 				password=variables.wheels.class.password
 			);
 		} catch (any e) {
-			$throw(
+			Throw(
 				type="Wheels.DataSourceNotFound",
 				message="The data source could not be reached.",
 				extendedInfo="Make sure your database is reachable and that your data source settings are correct. You either need to setup a data source with the name `#variables.wheels.class.dataSource#` in the Administrator or tell CFWheels to use a different data source in `config/settings.cfm`."
@@ -243,7 +248,7 @@ public any function $assignAdapter() {
 	} else if (FindNoCase("H2", local.info.driver_name)) {
 		local.adapterName = "H2";
 	} else {
-		$throw(
+		Throw(
 			type="Wheels.DatabaseNotSupported",
 			message="#local.info.database_productname# is not supported by CFWheels.",
 			extendedInfo="Use SQL Server, MySQL, MariaDB, Oracle, PostgreSQL or H2."
@@ -257,6 +262,9 @@ public any function $assignAdapter() {
 	);
 }
 
+/**
+* Internal Function
+*/
 public any function $initModelObject(
 	required string name,
 	required any properties,
@@ -299,14 +307,23 @@ public any function $initModelObject(
 	return this;
 }
 
+/**
+* Internal Function
+*/
 public struct function $classData() {
 	return variables.wheels.class;
 }
 
+/**
+* Internal Function
+*/
 public boolean function $softDeletion() {
 	return variables.wheels.class.softDeletion;
 }
 
+/**
+* Internal Function
+*/
 public string function $softDeleteColumn() {
 	return variables.wheels.class.softDeleteColumn;
 }

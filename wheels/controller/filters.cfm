@@ -1,11 +1,16 @@
 <cfscript>
 
 /**
- * Tells CFWheels to run a function before an action is run or after an action has been run.
- *
- * @doc.section Controller
- * @doc.category Initialization Functions
- *
+* Tells CFWheels to run a function before an action is run or after an action has been run.
+*
+* [section: Controller]
+* [category: Initialization Functions]
+*
+*  @through Function(s) to execute before or after the action(s).
+* @type  Whether to run the function(s) before or after the action(s).
+* @only Pass in a list of action names (or one action name) to tell CFWheels that the filter function(s) should only be run on these actions.
+* @except Pass in a list of action names (or one action name) to tell CFWheels that the filter function(s) should be run on all actions except the specified ones.
+* @placement append Pass in prepend to prepend the function(s) to the filter chain instead of appending.
  */
 public void function filters(
 	required string through,
@@ -48,9 +53,10 @@ public void function filters(
 /**
  * Use this function if you need a more low level way of setting the entire filter chain for a controller.
  *
- * @doc.section Controller
- * @doc.category Initialization Functions
+ * [section: Controller]
+ * [category: Initialization Functions]
  *
+ * @chain An array of structs, each of which represent an argumentCollection that get passed to the filters function. This should represent the entire filter chain that you want to use for this controller.
  */
 public void function setFilterChain(required array chain) {
 	// Clear current filter chain and then re-add from the passed in chain
@@ -64,15 +70,16 @@ public void function setFilterChain(required array chain) {
 /**
  * Returns an array of all the filters set on current controller in the order in which they will be executed.
  *
- * @doc.section Controller
- * @doc.category Initialization Functions
+ * [section: Controller]
+ * [category: Initialization Functions]
  *
+ * @type Use this argument to return only before or after filters.
  */
 public array function filterChain(string type="all") {
 
 	// Throw error if an invalid type was passed in.
 	if (!ListFindNoCase("before,after,all", arguments.type)) {
-		$throw(
+		Throw(
 			type="Wheels.InvalidFilterType",
 			message="The filter type of `#arguments.type#` is invalid.",
 			extendedInfo="Please use either `before` or `after`."
@@ -109,7 +116,7 @@ public void function $runFilters(required string type, required string action) {
 		local.notInExceptionList = Len(local.filter.except) && !ListFindNoCase(local.filter.except, arguments.action);
 		if (local.listsNotSpecified || local.inOnlyList || local.notInExceptionList) {
 			if (!StructKeyExists(variables, local.filter.through)) {
-				$throw(
+				Throw(
 					type="Wheels.FilterNotFound",
 					message="CFWheels tried to run the `#local.filter.through#` function as a #arguments.type# filter but could not find it.",
 					extendedInfo="Make sure there is a function named `#local.filter.through#` in the `#variables.$class.name#.cfc` file."

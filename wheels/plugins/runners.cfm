@@ -1,5 +1,7 @@
 <cfscript>
-
+/**
+* Internal Function
+*/
 public any function $pluginRunner() {
 
 	local.previousStack = callStackGet()[2]["function"];
@@ -58,7 +60,7 @@ public any function $pluginRunner() {
 
 		// throw a method not found error if core.method() doesn't have another
 		// method in the stack
-		$throw(
+		Throw(
 			type="Wheels.MethodNotFound",
 			message="The method `#local.methodName#` is part of a plugin but was not found in the base object."
 		);

@@ -28,9 +28,9 @@ public void function onApplicationStart() {
 	local.upgradeTo = $checkMinimumVersion(engine=application.$wheels.serverName, version=application.$wheels.serverVersion);
 	if (Len(local.upgradeTo) && !StructKeyExists(this, "disableEngineCheck") && !StructKeyExists(url, "disableEngineCheck")) {
 		if (IsBoolean(local.upgradeTo)) {
-			$throw(type="Wheels.EngineNotSupported", message="#application.$wheels.serverName# #application.$wheels.serverVersion# is not supported by CFWheels.", extendedInfo="Please use Lucee or Adobe ColdFusion instead.");
+			Throw(type="Wheels.EngineNotSupported", message="#application.$wheels.serverName# #application.$wheels.serverVersion# is not supported by CFWheels.", extendedInfo="Please use Lucee or Adobe ColdFusion instead.");
 		} else {
-			$throw(type="Wheels.EngineNotSupported", message="#application.$wheels.serverName# #application.$wheels.serverVersion# is not supported by CFWheels.", extendedInfo="Please upgrade to version #local.upgradeTo# or higher.");
+			Throw(type="Wheels.EngineNotSupported", message="#application.$wheels.serverName# #application.$wheels.serverVersion# is not supported by CFWheels.", extendedInfo="Please upgrade to version #local.upgradeTo# or higher.");
 		}
 	}
 
@@ -187,7 +187,8 @@ public void function onApplicationStart() {
 	application.$wheels.controllerPath = "controllers";
 
 	// miscellaneous settings
-	application.$wheels.dataAttributeDelimiter = "_";
+	application.$wheels.uncountables = "advice,air,blood,deer,equipment,fish,food,furniture,garbage,graffiti,grass,homework,housework,information,knowledge,luggage,mathematics,meat,milk,money,music,pollution,research,rice,sand,series,sheep,soap,software,species,sugar,traffic,transportation,travel,trash,water,feedback";
+	application.$wheels.irregulars = {child="children", foot="feet", man="men", move="moves", person="people", sex="sexes", tooth="teeth", woman="women"};
 	application.$wheels.tableNamePrefix = "";
 	application.$wheels.obfuscateURLs = false;
 	application.$wheels.reloadPassword = "";
@@ -290,7 +291,8 @@ public void function onApplicationStart() {
 	application.$wheels.functions.paginationLinks = {windowSize=2, alwaysShowAnchors=true, anchorDivider=" ... ", linkToCurrentPage=false, prepend="", append="", prependToPage="", prependOnFirst=true, prependOnAnchor=true, appendToPage="", appendOnLast=true, appendOnAnchor=true, classForCurrent="", name="page", showSinglePage=false, pageNumberAsParam=true};
 	application.$wheels.functions.passwordField = {label="useDefaultLabel", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel="", errorElement="span", errorClass="fieldWithErrors"};
 	application.$wheels.functions.passwordFieldTag = {label="", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel=""};
-	application.$wheels.functions.protectFromForgery = {with="exception", only="", except=""};
+	application.$wheels.functions.processRequest = {returnAs=""};
+	application.$wheels.functions.protectsFromForgery = {with="exception", only="", except=""};
 	application.$wheels.functions.radioButton = {label="useDefaultLabel", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel="", errorElement="span", errorClass="fieldWithErrors"};
 	application.$wheels.functions.radioButtonTag = {label="", labelPlacement="around", prepend="", append="", prependToLabel="", appendToLabel=""};
 	application.$wheels.functions.redirectTo = {onlyPath=true, host="", protocol="", port=0, addToken=false, statusCode=302, delay=false};
@@ -305,7 +307,7 @@ public void function onApplicationStart() {
 	application.$wheels.functions.sendEmail = {layout=false, detectMultipart=true, from="", to="", subject=""};
 	application.$wheels.functions.sendFile = {disposition="attachment"};
 	application.$wheels.functions.simpleFormat = {wrap=true};
-	application.$wheels.functions.startFormTag = {onlyPath=true, host="", protocol="", port=0, method="post", multipart=false, spamProtection=false, prepend="", append=""};
+	application.$wheels.functions.startFormTag = {onlyPath=true, host="", protocol="", port=0, method="post", multipart=false, prepend="", append=""};
 	application.$wheels.functions.styleSheetLinkTag = {type="text/css", media="all", head=false};
 	application.$wheels.functions.submitTag = {value="Save changes", image="", prepend="", append=""};
 	application.$wheels.functions.sum = {distinct=false, parameterize=true, ifNull=""};
@@ -357,7 +359,7 @@ public void function onApplicationStart() {
 
 	// add all public controller / view methods to a list of methods that you should not be allowed to call as a controller action from the url
 	local.allowedGlobalMethods = "get,set,drawRoutes";
-	local.protectedControllerMethods = StructKeyList($createObjectFromRoot(path=application.$wheels.controllerPath, fileName="Wheels", method="$initControllerClass"));
+	local.protectedControllerMethods = StructKeyList($createObjectFromRoot(path="wheels", fileName="Controller", method="$initControllerClass"));
 	application.$wheels.protectedControllerMethods = "";
 	local.iEnd = ListLen(local.protectedControllerMethods);
 	for (local.i = 1; local.i <= local.iEnd; local.i++) {
@@ -372,7 +374,7 @@ public void function onApplicationStart() {
 
 	// allow developers to inject plugins into the application variables scope
 	if (!StructIsEmpty(application.$wheels.mixins)) {
-		$include(template="wheels/plugins/injection.cfm");
+		$include(template="wheels/plugins/standalone/injection.cfm");
 	}
 
 	// create the mapper that will handle creating routes before $loadRoutes

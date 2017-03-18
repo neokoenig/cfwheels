@@ -211,13 +211,16 @@ public string function $tag(
 }
 
 public string function $tagAttribute(required string name, required string value) {
-	// for custom data attributes we convert underscores / camelCase to hyphens to get around the issue with not being able to use a hyphen in an argument name in CFML
-	if (Left(arguments.name, 4) == "data") {
-		local.delim = application.wheels.dataAttributeDelimiter;
-		if (Len(local.delim)) {
-			arguments.name = Replace(REReplace(arguments.name, "([a-z])([#local.delim#])", "\1-\2", "all"), "-#local.delim#", "-", "all");
-		}
+
+	// For custom data attributes we convert underscores and camel case to hyphens.
+	// E.g. "dataDomCache" and "data_dom_cache" becomes "data-dom-cache".
+	// This is to get around the issue with not being able to use a hyphen in an argument name in CFML.
+	if (Left(arguments.name, 5) == "data_") {
+		arguments.name = Replace(arguments.name, "_", "-", "all");
+	} else if (Left(arguments.name, 4) == "data") {
+		arguments.name = hyphenize(arguments.name);
 	}
+
 	arguments.name = LCase(arguments.name);
 
 	// set standard attribute name / value to use as the default to return (e.g. name / value part of <input name="value">)
@@ -264,7 +267,7 @@ public any function $objectName(
 	$combineArguments(args=arguments, combine="associations,association");
 
 	if (IsObject(arguments.objectName)) {
-		$throw(type="Wheels.InvalidArgument", message="The `objectName` argument passed is not of type string.");
+		Throw(type="Wheels.InvalidArgument", message="The `objectName` argument passed is not of type string.");
 	}
 
 	// only try to create the object name if we have a simple value
@@ -279,7 +282,7 @@ public any function $objectName(
 			if (local.expanded.type == "hasMany") {
 				local.hasManyAssociationCount++;
 				if (get("showErrorInformation") && local.hasManyAssociationCount > ListLen(arguments.positions)) {
-					$throw(
+					Throw(
 						type="Wheels.InvalidArgument",
 						message="You passed the hasMany association of `#local.association#` but did not provide a corresponding position.");
 				}
@@ -367,11 +370,11 @@ public any function $getObject(required string objectname) {
 		}
 	} catch (any e) {
 		if (get("showErrorInformation")) {
-			$throw(
+			Throw(
 				type="Wheels.ObjectNotFound",
 				message="CFWheels tried to find the model object `#arguments.objectName#` for the form helper, but it does not exist.");
 		} else {
-			$throw(argumentCollection=e);
+			Throw(object=e);
 		}
 	}
 	return local.rv;

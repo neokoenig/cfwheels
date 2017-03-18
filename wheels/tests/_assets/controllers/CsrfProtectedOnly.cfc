@@ -1,6 +1,6 @@
-component extends="wheels.Controller" {
+component extends="Controller" {
   function init() {
-    protectFromForgery(only="create");
+    protectsFromForgery(only="create");
   }
 
   function index() {

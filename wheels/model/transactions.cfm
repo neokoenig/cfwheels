@@ -1,9 +1,14 @@
 <cfscript>
 
 /**
- * Model class method.
- * Runs the specified method within a single database transaction.
- * Docs: http://docs.cfwheels.org/docs/invokewithtransaction
+* Runs the specified method within a single database transaction.
+*
+* [section: Model Class]
+* [category: Miscellaneous Functions]
+*
+* @method Model method to run.
+* @transaction Set this to commit to update the database when the save has completed, rollback to run all the database queries but not commit them, or none to skip transaction handling altogether.
+* @isolation Isolation level to be passed through to the cftransaction tag. See your CFML engine's documentation for more details about cftransaction's isolation attribute.
  */
 public any function invokeWithTransaction(
 	required string method,
@@ -20,7 +25,7 @@ public any function invokeWithTransaction(
 	local.connectionArgs = this.$hashedConnectionArgs();
 	local.closeTransaction = true;
 	if (!StructKeyExists(variables, arguments.method)) {
-		$throw(
+		Throw(
 			type="Wheels",
 			message="Model method not found",
 			extendedInfo="The method `#arguments.method#` does not exist in this model."
@@ -63,7 +68,7 @@ public any function invokeWithTransaction(
 			local.rv = $invoke(method=arguments.method, componentReference=this, invokeArgs=local.methodArgs);
 			break;
 		default:
-			$throw(
+			Throw(
 				type="Wheels",
 				message="Invalid transaction type",
 				extendedInfo="The transaction type of `#arguments.transaction#` is invalid. Please use `commit`, `rollback` or `false`."
@@ -76,7 +81,7 @@ public any function invokeWithTransaction(
 
 	// Check the return type.
 	if (!isBoolean(local.rv)) {
-		$throw(
+		Throw(
 			type="Wheels",
 			message="Invalid return type",
 			extendedInfo="Methods invoked using `invokeWithTransaction` must return a boolean value."
@@ -87,7 +92,7 @@ public any function invokeWithTransaction(
 }
 
 /**
- * Internal method.
+ * Internal Function
  */
 public string function $hashedConnectionArgs() {
 	return Hash(variables.wheels.class.dataSource & variables.wheels.class.username & variables.wheels.class.password);

@@ -9,61 +9,98 @@
 	* @meta metadata struct as returned from getMetaData()
 	* @doctype ie. Controller || Model
 	*/
-	struct function parseMetaData(required struct meta, required string doctype){
+	struct function $parseMetaData(required struct meta, required string doctype, required string functionName){
 		local.m=arguments.meta;
 		local.rv["name"]=structKeyExists(local.m, "name")?local.m.name:"";
+		local.rv["isPlugin"]=false;
+		local.rv["availableIn"]=[doctype];
+		// Pluginrunner override: see #735
+		if(left(local.rv.name, 1) == "$"){
+			local.rv["name"]=lcase(functionName);
+			local.rv["isPlugin"]=true;
+		}
 		local.rv["parameters"]=structKeyExists(local.m, "parameters")?local.m.parameters:[];
 		local.rv["returntype"]=structKeyExists(local.m, "returntype")?local.m.returntype:"";
 		local.rv["hint"]=structKeyExists(local.m, "hint")?local.m.hint:"";
-		local.rv["section"]="";
-		local.rv["sectionClass"]="";
-		local.rv["category"]="";
-		local.rv["categoryClass"]="";
-		local.rv["availableIn"]=[doctype];
+		local.rv["tags"]={
+			"section"="",
+			"sectionClass"="",
+			"category"="",
+			"categoryClass"=""
+		};
+
 		// Look for [something: Foo] style tags in hint
 		if(structKeyExists(local.rv, "hint")){
 			local.tags=ReMatchNoCase('\[((.*?):(.*?))\]', local.rv.hint);
 			if(arrayLen(local.tags)){
 				for(tag in local.tags){
-					tagName=replace(listFirst(tag, ":"), "[","","one");
-					tagValue=replace(listLast(tag, ":"), "]","","one");
-					local.rv[tagName]=tagValue;
-					local.rv[tagName & "Class"]=cssClassLink(tagValue);
+					tagName=trim(replace(listFirst(tag, ":"), "[","","one"));
+					tagValue=trim(replace(listLast(tag, ":"), "]","","one"));
+					local.rv.tags[tagName]=tagValue;
+					local.rv.tags[tagName & "Class"]=$cssClassLink(tagValue);
 				}
-				local.rv["hint"]=REReplaceNoCase(local.rv["hint"], "\[((.*?):(.*?))\]", "", "ALL");
 			}
+			local.rv.hint=REReplaceNoCase(local.rv.hint, "\[((.*?):(.*?))\]", "", "ALL");
 		}
 		// Check for param defaults within wheels settings
 		for(param in local.rv["parameters"]){
-			if(structKeyExists(application.wheels.functions, local.rv["name"])
-				&& structKeyExists(application.wheels.functions[local.rv["name"]], param['name'])){
-					param['default']=application.wheels.functions[local.rv["name"]][param['name']];
+			if(structKeyExists(application.wheels.functions, local.rv.name)
+				&& structKeyExists(application.wheels.functions[local.rv.name], param.name)){
+					param['default']=application.wheels.functions[local.rv.name][param.name];
 				}
 		}
 		// Check for extended documentation
-		local.rv["pathToExtended"]=expandPath("wheels/public/docs/reference/" & lcase(functionName) & ".txt");
-		local.rv["hasExtended"]=fileExists(local.rv.pathToExtended)?true:false;
-		if(local.rv.hasExtended){
-			local.rv["extended"]="<pre>" & htmleditformat(fileread(local.rv.pathToExtended)) & "</pre>";
-			local.rv["extended"]=trim(local.rv["extended"]);
+		local.rv["extended"]=$getExtendedCodeExamples("wheels/public/docs/reference/", functionName);
+
+		if(local.rv["name"] CONTAINS "$"){
+			writeDump(local);
+			abort;
 		}
 		return local.rv;
 	}
+
 	/**
-	* Searches for ``` in hint description output and formats
+	* Check for Extended Docs
+	*
+	* @pathToExtended The Path to the Extended doc txt files
+	* @functionName The Function Name
+	*/
+	struct function $getExtendedCodeExamples(pathToExtended, functionName){
+		local.rv={};
+		local.rv["path"]=expandPath(pathToExtended) & lcase(functionName) & ".txt";
+		local.rv["hasExtended"]=fileExists(local.rv.path)?true:false;
+		local.rv["docs"]="";
+		if(local.rv.hasExtended){
+			local.rv["docs"]="<pre>" & htmleditformat(fileread(local.rv.path)) & "</pre>";
+			local.rv["docs"]=trim(local.rv["docs"]);
+		}
+		return local.rv;
+	}
+
+	/**
+	* Formats the Main Hint
 	*
 	* @str The Hint String
 	*/
-	string function hintOutput(str){
-		local.rv=ReReplaceNoCase(arguments.str, '`(\w+)`', '<code>\1</code>', "ALL");
+	string function $hintOutput(str){
+		local.rv=$backTickReplace(arguments.str);
 		return simpleFormat(trim(local.rv));
+	}
+
+	/**
+	* Searches for ``` in hint description output and formats
+	*
+	* @str The String to search
+	*/
+	string function $backTickReplace(str){
+		return ReReplaceNoCase(arguments.str, '`(\w+)`', '<code>\1</code>', "ALL");
 	}
 	/**
 	* Turns "My Thing" into "mything"
 	*
 	* @str The String
 	*/
-	string function cssClassLink(str){
+	string function $cssClassLink(str){
 		return trim(replace(lcase(str), " ", "", "all"));
 	}
 

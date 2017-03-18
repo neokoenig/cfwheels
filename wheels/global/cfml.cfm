@@ -38,10 +38,6 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="$setting" returntype="void" access="public" output="false">
-	<cfsetting attributeCollection="#arguments#">
-</cffunction>
-
 <cffunction name="$image" returntype="struct" access="public" output="false">
 	<cfset var rv = {}>
 	<cfset arguments.structName = "rv">
@@ -50,36 +46,35 @@
 </cffunction>
 
 <cffunction name="$mail" returntype="void" access="public" output="false">
-	<cfset var loc = {}>
 	<cfif StructKeyExists(arguments, "mailparts")>
-		<cfset loc.mailparts = arguments.mailparts>
+		<cfset local.mailparts = arguments.mailparts>
 		<cfset StructDelete(arguments, "mailparts")>
 	</cfif>
 	<cfif StructKeyExists(arguments, "mailparams")>
-		<cfset loc.mailparams = arguments.mailparams>
+		<cfset local.mailparams = arguments.mailparams>
 		<cfset StructDelete(arguments, "mailparams")>
 	</cfif>
 	<cfif StructKeyExists(arguments, "tagContent")>
-		<cfset loc.tagContent = arguments.tagContent>
+		<cfset local.tagContent = arguments.tagContent>
 		<cfset StructDelete(arguments, "tagContent")>
 	</cfif>
 	<cfmail attributeCollection="#arguments#">
-		<cfif StructKeyExists(loc, "mailparams")>
-			<cfloop array="#loc.mailparams#" index="loc.i">
-				<cfmailparam attributeCollection="#loc.i#">
+		<cfif StructKeyExists(local, "mailparams")>
+			<cfloop array="#local.mailparams#" index="local.i">
+				<cfmailparam attributeCollection="#local.i#">
 			</cfloop>
 		</cfif>
-		<cfif StructKeyExists(loc, "mailparts")>
-			<cfloop array="#loc.mailparts#" index="loc.i">
-				<cfset loc.innerTagContent = loc.i.tagContent>
-				<cfset StructDelete(loc.i, "tagContent")>
-				<cfmailpart attributeCollection="#loc.i#">
-					#loc.innerTagContent#
+		<cfif StructKeyExists(local, "mailparts")>
+			<cfloop array="#local.mailparts#" index="local.i">
+				<cfset local.innerTagContent = local.i.tagContent>
+				<cfset StructDelete(local.i, "tagContent")>
+				<cfmailpart attributeCollection="#local.i#">
+					#local.innerTagContent#
 				</cfmailpart>
 			</cfloop>
 		</cfif>
-		<cfif StructKeyExists(loc, "tagContent")>
-			#loc.tagContent#
+		<cfif StructKeyExists(local, "tagContent")>
+			#local.tagContent#
 		</cfif>
 	</cfmail>
 </cffunction>
@@ -101,26 +96,27 @@
 
 <cffunction name="$include" returntype="void" access="public" output="false">
 	<cfargument name="template" type="string" required="true">
-	<cfset var loc = {}>
 	<cfinclude template="../../#LCase(arguments.template)#">
 </cffunction>
 
 <cffunction name="$includeAndOutput" returntype="void" access="public" output="true">
 	<cfargument name="template" type="string" required="true">
-	<cfset var loc = {}>
 	<cfinclude template="../../#LCase(arguments.template)#">
 </cffunction>
 
 <cffunction name="$includeAndReturnOutput" returntype="string" access="public" output="false">
 	<cfargument name="$template" type="string" required="true">
-	<cfset var loc = {}>
+
+	<!--- Make it so the developer can reference passed in arguments in the loc scope if they prefer. --->
 	<cfif StructKeyExists(arguments, "$type") AND arguments.$type IS "partial">
-		<!--- make it so the developer can reference passed in arguments in the loc scope if they prefer --->
-		<cfset loc = arguments>
+		<cfset local = arguments>
 	</cfif>
-	<!--- we prefix rv with "wheels" here to make sure the variable does not get overwritten in the included template --->
-	<cfsavecontent variable="loc.wheelsrv"><cfinclude template="../../#LCase(arguments.$template)#"></cfsavecontent>
-	<cfreturn loc.wheelsrv>
+
+	<!--- Include the template and return the result. --->
+	<!--- Variable is set to $wheels to limit chances of it being overwritten in the included template. --->
+	<cfsavecontent variable="local.$wheels"><cfinclude template="../../#LCase(arguments.$template)#"></cfsavecontent>
+	<cfreturn local.$wheels>
+
 </cffunction>
 
 <cffunction name="$directory" returntype="any" access="public" output="false">
@@ -134,13 +130,8 @@
 	<cffile attributeCollection="#arguments#">
 </cffunction>
 
-<cffunction name="$throw" returntype="void" access="public" output="false">
-	<cfthrow attributeCollection="#arguments#">
-</cffunction>
-
 <cffunction name="$invoke" returntype="any" access="public" output="false">
-	<cfset var loc = {}>
-	<cfset arguments.returnVariable = "loc.rv">
+	<cfset arguments.returnVariable = "local.rv">
 	<cfif StructKeyExists(arguments, "componentReference")>
 		<cfset arguments.component = arguments.componentReference>
 		<cfset StructDelete(arguments, "componentReference")>
@@ -153,8 +144,8 @@
 		<cfif StructCount(arguments.argumentCollection) IS NOT ListLen(StructKeyList(arguments.argumentCollection))>
 			<!--- work-around for fasthashremoved cf8 bug --->
 			<cfset arguments.argumentCollection = StructNew()>
-			<cfloop list="#StructKeyList(arguments.invokeArgs)#" index="loc.i">
-				<cfset arguments.argumentCollection[loc.i] = arguments.invokeArgs[loc.i]>
+			<cfloop list="#StructKeyList(arguments.invokeArgs)#" index="local.i">
+				<cfset arguments.argumentCollection[local.i] = arguments.invokeArgs[local.i]>
 			</cfloop>
 		</cfif>
 		<cfset StructDelete(arguments, "invokeArgs")>
@@ -165,8 +156,8 @@
 	<cfset arrayPrepend(request.$wheelsInvoked, duplicate(arguments))>
 	<cfinvoke attributeCollection="#arguments#">
 	<cfset arrayDeleteAt(request.$wheelsInvoked, 1)>
-	<cfif StructKeyExists(loc, "rv")>
-		<cfreturn loc.rv>
+	<cfif StructKeyExists(local, "rv")>
+		<cfreturn local.rv>
 	</cfif>
 </cffunction>
 

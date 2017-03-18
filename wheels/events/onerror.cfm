@@ -8,7 +8,7 @@ public void function onError(required exception, required eventName) {
 	if (StructKeyExists(application, "wheels") && StructKeyExists(application.wheels, "onErrorRequestTimeout")) {
 		local.requestTimeout = application.wheels.onErrorRequestTimeout;
 	}
-	$setting(requestTimeout=local.requestTimeout);
+	setting requestTimeout=local.requestTimeout;
 
 	$initializeRequestScope();
 	local.lockName = "reloadLock" & application.applicationName;
@@ -54,14 +54,14 @@ public string function $runOnError(required exception, required eventName) {
 				local.rv &= $includeAndReturnOutput($template="wheels/events/onerror/wheelserror.cfm", wheelsError=local.wheelsError);
 				local.rv &= $includeAndReturnOutput($template="wheels/styles/footer.cfm");
 			} else {
-				$throw(object=arguments.exception);
+				Throw(object=arguments.exception);
 			}
 		} else {
 			$header(statusCode=500, statusText="Internal Server Error");
 			local.rv = $includeAndReturnOutput($template="#application.wheels.eventPath#/onerror.cfm", exception=arguments.exception, eventName=arguments.eventName);
 		}
 	} else {
-		$throw(object=arguments.exception);
+		Throw(object=arguments.exception);
 	}
 	return local.rv;
 }

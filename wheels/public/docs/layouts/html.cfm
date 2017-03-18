@@ -6,11 +6,12 @@
 		<h1 class="header">Sections</h1>
 		<p style="padding-left:10px;">
 		<cfloop from="1" to="#arraylen(docs.sections)#" index="s">
-			<a href=""	data-section="#cssClassLink(docs.sections[s]['name'])#" class="section">#docs.sections[s]['name']#</a>
+			<a href=""	data-section="#$cssClassLink(docs.sections[s]['name'])#" class="section">#docs.sections[s]['name']#</a>
 			<cfloop from="1" to="#arraylen(docs.sections[s]['categories'])#" index="ss">
-				<a href=""	data-section="#cssClassLink(docs.sections[s]['name'])#"	data-category="#cssClassLink(docs.sections[s]['categories'][ss])#" class="category">#docs.sections[s]['categories'][ss]#</a>
+				<a href=""	data-section="#$cssClassLink(docs.sections[s]['name'])#"	data-category="#$cssClassLink(docs.sections[s]['categories'][ss])#" class="category">#docs.sections[s]['categories'][ss]#</a>
 			</cfloop>
 		</cfloop>
+		<a href=""	data-section=""	data-category="" class="section">Uncategorized</a>
 		</p>
 	</div>
 	<!--- A-Z Functions --->
@@ -21,7 +22,7 @@
 			<a href="" class="docreset"><i class="fa fa-eye"></i> All</a>
 			<cfloop from="1" to="#arraylen(docs.functions)#" index="func">
 			<cfset meta=docs.functions[func]>
-				<a href="" class="functionlink"	data-section="#meta.sectionClass#" data-category="#meta.categoryClass#" data-function="#lcase(meta.name)#">#meta.name#()</a>
+				<a href="" class="functionlink"	data-section="#meta.tags.sectionClass#" data-category="#meta.tags.categoryClass#" data-function="#lcase(meta.name)#">#meta.name#()</a>
 			</cfloop>
 		</p>
     </div><!--/col-->
@@ -30,18 +31,21 @@
 		<cfloop from="1" to="#arraylen(docs.functions)#" index="func">
 			<cfset meta=docs.functions[func]>
 			<div id="#lcase(meta.name)#"
-				data-section="#meta.sectionClass#"
-				data-category="#meta.categoryClass#"
+				data-section="#meta.tags.sectionClass#"
+				data-category="#meta.tags.categoryClass#"
 				class="functiondefinition">
 					<h3 class="functitle">#meta.name#()</h3>
 					<p>
-					<cfif len(meta.section)>
+					<cfif len(meta.tags.section)>
 						<a href="" class="filtersection tag" title="Show all Functions in this category">
-						<i class="fa fa-tag"></i> #meta.section#</a>
+						<i class="fa fa-tag"></i> #meta.tags.section#</a>
 					</cfif>
-					<cfif len(meta.category)>
+					<cfif len(meta.tags.category)>
 						<a href="" class="filtercategory tag" title="Show all Functions in this category">
-						<i class="fa fa-tag"></i> #meta.category#</a>
+						<i class="fa fa-tag"></i> #meta.tags.category#</a>
+					</cfif>
+					<cfif meta.isPlugin>
+						<span class="tag"><i class="fa fa-plug"></i> Plugin</span>
 					</cfif>
 					<cfif structKeyExists(meta, "returnType")>
 						<span class="tag"><i class="fa fa-reply"></i> #meta.returnType#</span>
@@ -53,7 +57,7 @@
 					</cfif>
 					  </p>
 					<cfif structKeyExists(meta, "hint")>
-						<div class="hint">#hintOutput(meta.hint)#</div>
+						<div class="hint">#$hintOutput(meta.hint)#</div>
 					</cfif>
 
 					<cfif isArray(meta.parameters) && arraylen(meta.parameters)>
@@ -69,27 +73,30 @@
 							</tr>
 						</thead>
 						<tbody>
-						<cfloop from="1" to="#arraylen(meta.parameters)#" index="_param">
-							<tr>
-								<td class='code'><cfif structkeyExists(meta.parameters[_param], "name")>#meta.parameters[_param]['name']#</cfif></td>
-								<td class='code'><cfif structkeyExists(meta.parameters[_param], "type")>#meta.parameters[_param]['type']#</cfif></td>
-								<td class='code'><cfif structkeyExists(meta.parameters[_param], "Required")>#meta.parameters[_param]['required']#</cfif></td>
-								<td class='code'>
-								<cfif
-									structKeyExists(application.wheels.functions, func)
-									AND structKeyExists(application.wheels.functions[func], meta.parameters[_param]['name'])>
-									#application.wheels.functions[func][meta.parameters[_param]['name']]#
-								</cfif>
-								<cfif structkeyExists(meta.parameters[_param], "default")>#meta.parameters[_param]['default']#</cfif></td>
-								<td><cfif structkeyExists(meta.parameters[_param], "hint")>#meta.parameters[_param]['hint']#</cfif></td>
-							</tr>
+						<cfloop from="1" to="#arraylen(meta.parameters)#" index="p">
+						<cfset _param=meta.parameters[p]>
+							<cfif !left(_param.name, 1) EQ "$">
+								<tr>
+									<td class='code'>#_param.name#</td>
+									<td class='code'>#_param.type#</td>
+									<td class='code'>#_param.required#</td>
+									<td class='code'>
+									<cfif
+										structKeyExists(application.wheels.functions, func)
+										AND structKeyExists(application.wheels.functions[func], _param.name)>
+										#application.wheels.functions[func][_param.name]#
+									</cfif>
+									<cfif structkeyExists(_param, "default")>#_param.default#</cfif></td>
+									<td><cfif structkeyExists(_param, "hint")>#$backTickReplace(_param.hint)#</cfif></td>
+								</tr>
+							</cfif>
 						</cfloop>
 						</tbody>
 						</table>
 					</cfif>
 
-					<cfif meta.hasExtended>
-						<div class="md">#meta.extended#</div>
+					<cfif meta.extended.hasExtended>
+						<div class="md">#meta.extended.docs#</div>
 					</cfif>
 
 				</div><!--/ #lcase(meta.name)# -->

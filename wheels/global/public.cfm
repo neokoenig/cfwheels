@@ -1,14 +1,31 @@
 <cfscript>
-
+/**
+* Adds a new MIME format to your Wheels application for use with responding to multiple formats.
+*
+* [section: Configuration]
+*
+* @extension string true File extension to add.
+* @mimeType string true Matching MIME type to associate with the file extension.
+*/
 public void function addFormat(required string extension, required string mimeType) {
 	local.appKey = $appKey();
 	application[local.appKey].formats[arguments.extension] = arguments.mimeType;
 }
 
+/**
+* Use to configure your applications routes
+*
+* [section: Configuration]
+*/
 public struct function drawRoutes(boolean restful=true, boolean methods=arguments.restful) {
 	return application[$appKey()].mapper.draw(argumentCollection=arguments);
 }
 
+/**
+* DEPRECATED. Adds a new route to your application.
+*
+* [section: Configuration]
+*/
 public void function addRoute() {
 	throw(
 		type="Wheels.DeprecatedFunction",
@@ -17,6 +34,11 @@ public void function addRoute() {
 	);
 }
 
+/**
+* Use to configure a global setting or set a default for a function.
+*
+* [section: Configuration]
+*/
 public void function set() {
 	local.appKey = $appKey();
 	if (ArrayLen(arguments) > 1) {
@@ -34,12 +56,19 @@ public void function set() {
 }
 
 /**
-	* Creates a controller and calls an action on it.
-	* Which controller and action that's called is determined by the params passed in.
-	* Returns the result of the request either as a string or in a struct with body, status and type.
-	* Primarily used for testing purposes.
-	*/
+* Creates a controller and calls an action on it.
+* Which controller and action that's called is determined by the params passed in.
+* Returns the result of the request either as a string or in a struct with body, status and type.
+* Primarily used for testing purposes.
+*
+* [section: Controller]
+* [category: Miscellaneous Functions]
+*
+* @params The params struct with controller and action set
+* @returnAs Return format
+*/
 public any function processRequest(required struct params, string returnAs) {
+	$args(name="processRequest", args=arguments);
 	local.controller = controller(name=arguments.params.controller, params=arguments.params);
 	local.controller.processAction();
 	local.response = local.controller.response();
@@ -58,7 +87,7 @@ public any function processRequest(required struct params, string returnAs) {
 		local.redirect = "";
 	}
 
-	if (StructKeyExists(arguments, "returnAs") && arguments.returnAs == "struct") {
+	if (arguments.returnAs == "struct") {
 		local.rv = {
 			body = local.body,
 			redirect = local.redirect,
@@ -81,9 +110,9 @@ public any function processRequest(required struct params, string returnAs) {
 }
 
 /**
-	* Internal function
-	* Get the status code (e.g. 200, 404 etc) of the response we're about to send.
-	*/
+* Internal function
+* Get the status code (e.g. 200, 404 etc) of the response we're about to send.
+*/
 public string function $statusCode() {
 	if (StructKeyExists(server, "lucee")) {
 		local.response = getPageContext().getResponse();
@@ -94,9 +123,9 @@ public string function $statusCode() {
 }
 
 /**
-	* Internal function
-	* Gets the value of the content type header (blank string if it doesn't exist) of the response we're about to send.
-	*/
+* Internal function
+* Gets the value of the content type header (blank string if it doesn't exist) of the response we're about to send.
+*/
 public string function $contentType() {
 	local.rv = "";
 	if (StructKeyExists(server, "lucee")) {
@@ -113,10 +142,18 @@ public string function $contentType() {
 	return local.rv;
 }
 
+/**
+* Returns a struct with information about the specificed paginated query. The keys that will be included in the struct are currentPage, totalPages and totalRecords.
+*
+* [section: Controller]
+* [category: Pagination Functions]
+*
+* @handle The handle given to the query to return pagination information for.
+*/
 public struct function pagination(string handle="query") {
 	if (get("showErrorInformation")) {
 		if (!StructKeyExists(request.wheels, arguments.handle)) {
-			$throw(
+			Throw(
 				type="Wheels.QueryHandleNotFound",
 				message="CFWheels couldn't find a query with the handle of `#arguments.handle#`.",
 				extendedInfo="Make sure your `findAll` call has the `page` argument specified and matching `handle` argument if specified."
@@ -126,6 +163,17 @@ public struct function pagination(string handle="query") {
 	return request.wheels[arguments.handle];
 }
 
+/**
+* Allows you to set a pagination handle for a custom query so you can perform pagination on it in your view with paginationLinks.
+*
+* [section: Controller]
+* [category: Pagination Functions]
+*
+* @totalRecords Total count of records that should be represented by the paginated links.
+* @currentPage Page number that should be represented by the data being fetched and the paginated links.
+* @perPage Number of records that should be represented on each page of data.
+* @handle Name of handle to reference in paginationLinks.
+*/
 public void function setPagination(
 	required numeric totalRecords,
 	numeric currentPage=1,
@@ -183,6 +231,15 @@ public void function setPagination(
 	request.wheels[arguments.handle] = local.args;
 }
 
+/**
+* Creates and returns a controller object with your own custom name and params. Used primarily for testing purposes.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @name  Name of the controller to create.
+* @params The params struct (combination of form and URL variables).
+*/
 public any function controller(required string name, struct params={}) {
 	local.args = {};
 	local.args.name = arguments.name;
@@ -193,6 +250,15 @@ public any function controller(required string name, struct params={}) {
 	return local.rv;
 }
 
+/**
+* Returns the current setting for the supplied Wheels setting or the current default for the supplied Wheels function argument.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @name Variable name to get setting for.
+* @functionName Function name to get setting for.
+*/
 public any function get(required string name, string functionName="") {
 	local.appKey = $appKey();
 	if (Len(arguments.functionName)) {
@@ -203,10 +269,26 @@ public any function get(required string name, string functionName="") {
 	return local.rv;
 }
 
+/**
+* Returns a reference to the requested model so that class level methods can be called on it.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @name Name of the model to get a reference to.
+*/
 public any function model(required string name) {
 	return $doubleCheckedLock(name="modelLock#application.applicationName#", condition="$cachedModelClassExists", execute="$createModelClass", conditionArgs=arguments, executeArgs=arguments);
 }
 
+/**
+* Obfuscates a value. Typically used for hiding primary key values when passed along in the URL.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @param The Value to Obfuscate.
+*/
 public string function obfuscateParam(required any param) {
 	local.rv = arguments.param;
 	if (IsValid("integer", arguments.param) && IsNumeric(arguments.param) && arguments.param > 0 && Left(arguments.param, 1) != 0) {
@@ -223,6 +305,14 @@ public string function obfuscateParam(required any param) {
 	return local.rv;
 }
 
+/**
+* Deobfuscates a value.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @param The Value to deobfuscate.
+*/
 public string function deobfuscateParam(required string param) {
 	if (Val(arguments.param) != arguments.param) {
 		try {
@@ -253,14 +343,34 @@ public string function deobfuscateParam(required string param) {
 	return local.rv;
 }
 
+/**
+* Returns a list of all installed plugins' names.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*/
 public string function pluginNames() {
 	return StructKeyList(application.wheels.plugins);
 }
 
 /**
-	* Creates an internal URL based on supplied arguments.
-	* http://docs.cfwheels.org/docs/urlfor
-	*/
+* Creates an internal URL based on supplied arguments.
+*
+* [section: Global Helpers]
+* [category: Miscellaneous Functions]
+*
+* @route Name of a route that you have configured in config/routes.cfm.
+* @controller Name of the controller to include in the URL.
+* @action Name of the action to include in the URL.
+* @key Key(s) to include in the URL.
+* @params Any additional parameters to be set in the query string (example: wheels=cool&x=y). Please note that CFWheels uses the & and = characters to split the parameters and encode them properly for you (using URLEncodedFormat() internally). However, if you need to pass in & or = as part of the value, then you need to encode them (and only them), example: a=cats%26dogs%3Dtrouble!&b=1.
+* @anchor Sets an anchor name to be appended to the path.
+* @onlyPath If true, returns only the relative URL (no protocol, host name or port).
+* @host Set this to override the current host.
+* @protocol Set this to override the current protocol.
+* @port Set this to override the current port number.
+*
+*/
 public string function URLFor(
 	string route="",
 	string controller="",
@@ -284,7 +394,7 @@ public string function URLFor(
 	// Throw error if host or protocol are passed with onlyPath=true.
 	local.hostOrProtocolNotEmpty = Len(arguments.host) || Len(arguments.protocol);
 	if (application.wheels.showErrorInformation && arguments.onlyPath && local.hostOrProtocolNotEmpty) {
-		$throw(
+		Throw(
 			type="Wheels.IncorrectArguments",
 			message="Can't use the `host` or `protocol` arguments when `onlyPath` is `true`.",
 			extendedInfo="Set `onlyPath` to `false` so that `linkTo` will create absolute URLs and thus allowing you to set the `host` and `protocol` on the link."
@@ -354,7 +464,7 @@ public string function URLFor(
 		} else if (StructKeyExists(local.route, local.property)) {
 			local.value = local.route[local.property];
 		} else if (Len(arguments.route) && arguments.$URLRewriting != "Off") {
-			$throw(
+			Throw(
 				type="Wheels.IncorrectRoutingArguments",
 				message="Incorrect Arguments",
 				extendedInfo="The route chosen by Wheels `#local.route.name#` requires the argument `#local.property#`. Pass the argument `#local.property#` or change your routes to reflect the proper variables needed."
@@ -365,7 +475,7 @@ public string function URLFor(
 
 		// If value is a model object, get its key value.
 		if (IsObject(local.value)) {
-			local.value = local.value.toParam();
+			local.value = local.value.key();
 		}
 
 		// Any value we find from above, URL encode it here.
@@ -424,6 +534,14 @@ public string function URLFor(
 	return local.rv;
 }
 
+/**
+* Capitalizes all words in the text to create a nicer looking title.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @string String to capitalize.
+*/
 public string function capitalize(required string text) {
 	local.rv = arguments.text;
 	if (Len(local.rv)) {
@@ -432,6 +550,16 @@ public string function capitalize(required string text) {
 	return local.rv;
 }
 
+/**
+* Returns readable text by capitalizing and converting camel casing to multiple words.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @text Text to humanize.
+* @except A list of strings (space separated) to replace within the output.
+*
+*/
 public string function humanize(required string text, string except="") {
 	// add a space before every capitalized word
 	local.rv = REReplace(arguments.text, "([[:upper:]])", " \1", "all");
@@ -455,6 +583,16 @@ public string function humanize(required string text, string except="") {
 	return local.rv;
 }
 
+/**
+* Returns the plural form of the passed in word. Can also pluralize a word based on a value passed to the count argument.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @word The word to pluralize.
+* @count Pluralization will occur when this value is not 1.
+* @returnCount Will return count prepended to the pluralization when true and count is not -1.
+*/
 public string function pluralize(required string word, numeric count="-1", boolean returnCount="true") {
 	return $singularizeOrPluralize(
 		count=arguments.count,
@@ -464,10 +602,26 @@ public string function pluralize(required string word, numeric count="-1", boole
 	);
 }
 
+/**
+* Returns the singular form of the passed in word.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @string String to singularize.
+*/
 public string function singularize(required string word) {
 		return $singularizeOrPluralize(text=arguments.word, which="singularize");
 }
 
+/**
+* Returns an XHTML-compliant string.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @string String to make XHTML-compliant.
+*/
 public string function toXHTML(required string text) {
 	return Replace(arguments.text, "&", "&amp;", "all");
 }
@@ -480,6 +634,14 @@ public string function mimeTypes(required string extension, string fallback="app
 	return local.rv;
 }
 
+/**
+* Converts camelCase strings to lowercase strings with hyphens as word delimiters instead. Example: myVariable becomes my-variable.
+*
+* [section: Global Helpers]
+* [category: String Functions]
+*
+* @string The string to hyphenize.
+*/
 public string function hyphenize(required string string) {
 	local.rv = REReplace(arguments.string, "([A-Z][a-z])", "-\l\1", "all");
 	local.rv = REReplace(local.rv, "([a-z])([A-Z])", "\1-\l\2", "all");

@@ -31,7 +31,7 @@
 
       // error if the user asked for a nested resource
       if (arguments.nested)
-        $throw(
+        Throw(
             type="Wheels.InvalidResource"
           , message="Multiple resources in same declaration cannot be nested."
         );
@@ -110,7 +110,7 @@
     } else {
 
       // set controller name based on naming preference
-      switch ($$get("resourceControllerNaming")) {
+      switch (get("resourceControllerNaming")) {
         case "name": local.args.controller = arguments.name; break;
         case "singular": local.args.controller = arguments.singular; break;
         default: local.args.controller = arguments.plural;

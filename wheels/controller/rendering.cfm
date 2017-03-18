@@ -1,5 +1,18 @@
 <cfscript>
-
+/**
+* Instructs the controller which view template and layout to render when it's finished processing the action. Note that when passing values for controller and/or action, this function does not execute the actual action but rather just loads the corresponding view template.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+* @controller Controller to include the view page for.
+* @action Action to include the view page for.
+* @template A specific template to render. Prefix with a leading slash / if you need to build a path from the root views folder.
+* @layout The layout to wrap the content in. Prefix with a leading slash / if you need to build a path from the root views folder. Pass false to not load a layout at all.
+* @cache Number of minutes to cache the content for.
+* @returnAs Set to string to return the result instead of automatically sending it to the client.
+* @hideDebugInformation Set to true to hide the debug information at the end of the output. This is useful when you're testing XML output in an environment where the global setting for showDebugInformation is true.
+*/
 public any function renderPage(
 	string controller=variables.params.controller,
 	string action=variables.params.action,
@@ -62,15 +75,39 @@ public any function renderPage(
 		return local.rv;
 	}
 }
-
+/**
+* Instructs the controller to render an empty string when it's finished processing the action. This is very similar to calling cfabort with the advantage that any after filters you have set on the action will still be run.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+*/
 public void function renderNothing() {
 	variables.$instance.response = "";
 }
-
+/**
+* Instructs the controller to render specified text when it's finished processing the action.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+* @text The Text to Render
+*/
 public void function renderText(required any text) {
 	variables.$instance.response = arguments.text;
 }
-
+/**
+* Instructs the controller to render a partial when it's finished processing the action.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+* @partial The name of the partial file to be used. Prefix with a leading slash / if you need to build a path from the root views folder. Do not include the partial filename's underscore and file extension.
+* @cacheSee documentation for renderPage.
+* @layout See documentation for renderPage.
+* @returnAs See documentation for renderPage.
+* @dataFunctiontrue Name of a controller function to load data from.
+*/
 public any function renderPartial(
 	required string partial,
 	any cache="",
@@ -89,7 +126,13 @@ public any function renderPartial(
 		return local.rv;
 	}
 }
-
+/**
+* Returns content that CFWheels will send to the client in response to the request.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+*/
 public string function response() {
 	if ($performedRender()) {
 		return Trim(variables.$instance.response);
@@ -97,11 +140,24 @@ public string function response() {
 		return "";
 	}
 }
-
+/**
+* Sets content that CFWheels will send to the client in response to the request.
+*
+* [section: Controller]
+* [category: Rendering Functions]
+*
+* @content The content to send to the Client
+*/
 public void function setResponse(required string content) {
 	variables.$instance.response = arguments.content;
 }
-
+/**
+* Mainly used for testing to establish whether the current request has performed a redirect
+* Primarily used for testing
+*
+* [section: Controller]
+* [category: Miscellaneous Functions]
+*/
 public struct function getRedirect() {
 	if ($performedRedirect()) {
 		return variables.$instance.redirect;
@@ -110,6 +166,9 @@ public struct function getRedirect() {
 	}
 }
 
+/**
+* Internal Function
+*/
 public string function $renderPageAndAddToCache() {
 	local.rv = $renderPage(argumentCollection=arguments);
 	if (!IsNumeric(arguments.$cache)) {
@@ -119,6 +178,9 @@ public string function $renderPageAndAddToCache() {
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public string function $renderPage() {
 	if (!Len(arguments.$template)) {
 		arguments.$template = "/" & ListChangeDelims(arguments.$controller, '/', '.') & "/" & arguments.$action;
@@ -130,6 +192,9 @@ public string function $renderPage() {
 	return $renderLayout($content=local.content, $layout=arguments.$layout, $type=arguments.$type);
 }
 
+/**
+* Internal Function
+*/
 public string function $renderPartialAndAddToCache() {
 	local.rv = $renderPartial(argumentCollection=arguments);
 	if (!IsNumeric(arguments.$cache)) {
@@ -139,6 +204,9 @@ public string function $renderPartialAndAddToCache() {
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public struct function $argumentsForPartial() {
 	local.rv = {};
 	if (StructKeyExists(arguments, "$dataFunction") && arguments.$dataFunction != false) {
@@ -157,6 +225,9 @@ public struct function $argumentsForPartial() {
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public string function $renderPartial() {
 	local.rv = "";
 	if (IsQuery(arguments.$partial) && arguments.$partial.recordCount) {
@@ -181,6 +252,9 @@ public string function $renderPartial() {
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public string function $includeOrRenderPartial() {
 	if (get("cachePartials") && (isNumeric(arguments.$cache) || (IsBoolean(arguments.$cache) && arguments.$cache))) {
 		local.category = "partial";
@@ -205,6 +279,9 @@ public string function $includeOrRenderPartial() {
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public string function $generateIncludeTemplatePath(
 	required any $name,
 	required any $type,
@@ -238,6 +315,9 @@ public string function $generateIncludeTemplatePath(
 	return LCase(local.rv);
 }
 
+/**
+* Internal Function
+*/
 public string function $includeFile(required any $name, required any $template, required any $type) {
 	if (arguments.$type == "partial") {
 		if (StructKeyExists(arguments, "query") && IsQuery(arguments.query)) {
@@ -252,7 +332,7 @@ public string function $includeFile(required any $name, required any $template, 
 				local.groupQueryCount = 1;
 				arguments.group = QueryNew(local.query.columnList);
 				if (get("showErrorInformation") && !ListFindNoCase(local.query.columnList, arguments.$group)) {
-					$throw(
+					Throw(
 						type="Wheels.GroupColumnNotFound",
 						message="CFWheels couldn't find a query column with the name of `#arguments.$group#`.",
 						extendedInfo="Make sure your finder method has the column `#arguments.$group#` specified in the `select` argument. If the column does not exist, create it."
@@ -347,6 +427,9 @@ public string function $includeFile(required any $name, required any $template, 
 	return local.rv;
 }
 
+/**
+* Internal Function
+*/
 public boolean function $performedRenderOrRedirect() {
 	if ($performedRender() || $performedRedirect())	{
 		return true;
@@ -355,18 +438,30 @@ public boolean function $performedRenderOrRedirect() {
 	}
 }
 
+/**
+* Internal Function
+*/
 public boolean function $performedRender() {
 	return StructKeyExists(variables.$instance, "response");
 }
 
+/**
+* Internal Function
+*/
 public boolean function $performedRedirect() {
 	return StructKeyExists(variables.$instance, "redirect");
 }
 
+/**
+* Internal Function
+*/
 public boolean function $abortIssued() {
 	return StructKeyExists(variables.$instance, "abort");
 }
 
+/**
+* Internal Function
+*/
 public boolean function $reCacheRequired() {
 	return StructKeyExists(variables.$instance, "reCache") && variables.$instance.reCache;
 }

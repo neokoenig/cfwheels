@@ -24,7 +24,6 @@ public string function endFormTag(string prepend, string append) {
  *
  * @method The type of method to use in the form tag. get and post are the options.
  * @multipart Set to true if the form should be able to upload files.
- * @spamProtection Set to true to protect the form against spammers (done with JavaScript).
  * @route Name of a route that you have configured in config/routes.cfm.
  * @controller Name of the controller to include in the URL.
  * @action Name of the action to include in the URL.
@@ -66,7 +65,7 @@ public string function startFormTag(
 
 		// throw a nice wheels error if the developer passes in a route that was not generated
 		if (application.wheels.showErrorInformation && !StructKeyExists(application.wheels.namedRoutePositions, arguments.route)) {
-			$throw(
+			Throw(
 				type="Wheels.RouteNotFound",
 				message="Route Not Found",
 				extendedInfo="The route specified `#arguments.route#` does not exist!"
@@ -104,7 +103,7 @@ public string function startFormTag(
 		arguments.enctype = "multipart/form-data";
 	}
 
-	local.skip = "multipart,spamProtection,route,controller,key,params,anchor,onlyPath,host,protocol,port,prepend,append";
+	local.skip = "multipart,route,controller,key,params,anchor,onlyPath,host,protocol,port,prepend,append";
 
 	// variables passed in as route arguments should not be added to the html element
 	if (Len(arguments.route)) {
@@ -219,7 +218,7 @@ public string function $formValue(required any objectName, required string prope
 	} else {
 		local.object = $getObject(arguments.objectName);
 		if (get("showErrorInformation") && !IsObject(local.object)) {
-			$throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
+			Throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
 		}
 		if (StructKeyExists(local.object, arguments.property)) {
 			local.rv = local.object[arguments.property];
@@ -261,7 +260,7 @@ public boolean function $formHasError(required any objectName, required string p
 	if (!IsStruct(arguments.objectName)) {
 		local.object = $getObject(arguments.objectName);
 		if (get("showErrorInformation") && !IsObject(local.object)) {
-			$throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
+			Throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
 		}
 		if (ArrayLen(local.object.errorsOn(arguments.property))) {
 			local.rv = true;
