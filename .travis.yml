@@ -18,8 +18,9 @@ env:
     # Works
     #- CFENGINE=lucee@5.1.2+24  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
     # Test
-    - CFENGINE=lucee@4.5.5+006 DB=PostgreSql DBCLASS=org.PostgreSql.Driver
-    - CFENGINE=lucee@5.1.2+24  DB=PostgreSql DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@4.5.5+006 DB=PostgreSQL DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@5.1.2+24  DB=PostgreSQL DBCLASS=org.postgresql.Driver
+
     #- CFENGINE=adobe@11.0.11+301867 DB=MySQL HOST=127.0.0.1 USERNAME=root DBCLASS=com.mysql.jdbc.Driver
     #- CFENGINE=adobe@11 DB=PostgreSql PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
     #- CFENGINE=adobe@2016 DB=MySQL PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
@@ -43,9 +44,9 @@ before_script:
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-  - if [[ "$DB" == "H2" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=H2 class="$DBCLASS" custom="mode=$MODE&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow=511 clob=true blob=true; fi
-  - if [[ "$DB" == "MySQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=MySQL class="$DBCLASS" host=127.0.0.1 port=3306 username=travis password="" blob=true clob=true; fi
-  - if [[ "$DB" == "PostgreSql" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=PostgreSql class="$DBCLASS" host=127.0.0.1 port=5432 username=travis password="" blob=true clob=true; fi
+  - if [[ "$DB" == "H2" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class="$DBCLASS" custom="mode=$MODE&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow=511 clob=true blob=true; fi
+  - if [[ "$DB" == "MySQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class="$DBCLASS" host=127.0.0.1 port=3306 username=travis password="" blob=true clob=true; fi
+  - if [[ "$DB" == "PostgreSQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class="$DBCLASS" host=127.0.0.1 port=5432 username=travis password="" blob=true clob=true; fi
   # Disable sitewide error handler for ACF
   #- if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
   # Restart The Server
