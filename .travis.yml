@@ -50,7 +50,7 @@ before_script:
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
   - box cfconfig datasource list
 script: >
-  testResults="$(box wheels test core cfwheels )";
+  testResults="$(box wheels test type=core servername=cfwheels adapter=$MODE )";
   echo "$testResults";
   if ! grep -i "\Tests Complete: All Good!" <<< $testResults;  then exit 1; fi
 notifications:
