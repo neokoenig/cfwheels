@@ -40,7 +40,7 @@ before_script:
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-  - if [[ "$DB" == "H2" ]]; box cfconfig datasource save name="wheelstestdb" database="wheelstestdb" dbdriver="H2" class="org.h2.Driver" custom="mode=$MODE&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow=511 clob=true blob=true; fi
+  - if [[ "$DB" == "H2" ]]; box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=H2 class="org.h2.Driver" custom="mode=MySQL&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow=511 clob=true blob=true; fi
   #- if [[ "$DB" == "MySQL" ]]; then
   #- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class=$DBCLASS host=$HOST username=$USERNAME password="" blob=true clob=true
   # Disable sitewide error handler for ACF
