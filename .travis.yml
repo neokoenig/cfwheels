@@ -45,7 +45,7 @@ before_script:
   # Add the datasource via CFConfig
   - if [[ "$DB" == "H2" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=H2 class="$DBCLASS" custom="mode=$MODE&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow=511 clob=true blob=true; fi
   - if [[ "$DB" == "MySQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=MySQL class="$DBCLASS" host=127.0.0.1 port=3306 username=travis password="" blob=true clob=true; fi
-  - if [[ "$DB" == "PostgreSQL"]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=PostgreSql class="$DBCLASS" host=127.0.0.1 port=5432 username=travis password="" blob=true clob=true; fi
+  - if [[ "$DB" == "PostgreSQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=PostgreSql class="$DBCLASS" host=127.0.0.1 port=5432 username=travis password="" blob=true clob=true; fi
   # Disable sitewide error handler for ACF
   #- if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
   # Restart The Server
