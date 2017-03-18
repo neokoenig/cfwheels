@@ -7,8 +7,9 @@ jdk:
   - oraclejdk8
 env:
   matrix:
+    #
     #  'MSSQL' : 'PostgreSQL' : 'Oracle' : 'MySQL' : 'DB2' : 'H2' :
-      CFENGINE=lucee@4.5.5+006 DB=H2
+    - CFENGINE=lucee@4.5.5+006 DB=H2
     # Lucee MySQL
     #- CFENGINE=lucee@4.5.5+006 DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=travis DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=lucee@5.1.2+24  DB=MySQL HOST=127.0.0.1 PORT=3306 USERNAME=travis DBCLASS=org.gjt.mm.mysql.Driver
@@ -39,7 +40,7 @@ before_script:
   # Start The Server
   - box server start cfengine=$CFENGINE
   # Add the datasource via CFConfig
-  - if [[ "$DB" == "H2" ]]; then box cfconfig datasource save name=wheelstestdb database="wheelstestdb" dbdriver="H2" class="org.h2.Driver" custom="mode=MySQL&path=./db/"  dsn="jdbc:h2:{path}{database};MODE={mode}" allow="511" clob=true blob=true; fi
+  - if [[ "$DB" == "H2" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=H2 class=org.h2.Driver custom=mode=MySQL&path=./db/  dsn=jdbc:h2:{path}{database};MODE={mode} allow=511 clob=true blob=true; fi
   #- if [[ "$DB" == "MySQL" ]]; then
   #- box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class=$DBCLASS host=$HOST username=$USERNAME password="" blob=true clob=true
   # Disable sitewide error handler for ACF
