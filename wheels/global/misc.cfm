@@ -1,6 +1,27 @@
 <cfscript>
 
 /**
+ * Returns the current setting for the supplied Wheels setting or the current default for the supplied Wheels function argument.
+ *
+ * [section: Configuration]
+ *
+ * @name Variable name to get setting for.
+ * @functionName Function name to get setting for.
+ */
+public any function get(required string name, string functionName="") {
+	return $get(argumentCollection=arguments);
+}
+
+/**
+ * Use to configure a global setting or set a default for a function.
+ *
+ * [section: Configuration]
+ */
+public void function set() {
+	$set(argumentCollection=arguments);
+}
+
+/**
  * Adds a new MIME format to your Wheels application for use with responding to multiple formats.
  *
  * [section: Configuration]
@@ -14,9 +35,10 @@ public void function addFormat(required string extension, required string mimeTy
 }
 
 /**
- * Use to configure your applications routes
+ * Use to configure your application's routes.
  *
  * [section: Configuration]
+ * [category: Routing]
  */
 public struct function drawRoutes(boolean restful=true, boolean methods=arguments.restful) {
 	return application[$appKey()].mapper.draw(argumentCollection=arguments);
@@ -85,7 +107,7 @@ public any function processRequest(required struct params, string returnAs) {
  * @handle The handle given to the query to return pagination information for.
  */
 public struct function pagination(string handle="query") {
-	if (get("showErrorInformation")) {
+	if ($get("showErrorInformation")) {
 		if (!StructKeyExists(request.wheels, arguments.handle)) {
 			Throw(
 				type="Wheels.QueryHandleNotFound",

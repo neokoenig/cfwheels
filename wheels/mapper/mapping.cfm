@@ -14,16 +14,20 @@ public struct function draw(boolean restful=true, boolean methods=arguments.rest
 }
 
 /**
- * Internal function.
- * If last action was a resource, set up REST routes.
+ * Call this to end your route configuration.
+ *
+ * [section: Configuration]
+ * [category: Routing]
  */
 public struct function end() {
+	// If last action was a resource, set up REST routes.
+
 	if (variables.scopeStack[1].$call == "resources") {
 
 		// Create plural resource routes.
 		collection();
 		if (ListFind(variables.scopeStack[1].actions, "index")) {
-			$get(pattern="(.[format])", action="index");
+			get(pattern="(.[format])", action="index");
 		}
 		if (ListFindNoCase(variables.scopeStack[1].actions, "create")) {
 			post(pattern="(.[format])", action="create");
@@ -31,15 +35,15 @@ public struct function end() {
 		end();
 		if (ListFindNoCase(variables.scopeStack[1].actions, "new")) {
 			scope(path=variables.scopeStack[1].collectionPath, $call="new");
-			$get(pattern="new(.[format])", action="new", name="new");
+			get(pattern="new(.[format])", action="new", name="new");
 			end();
 		}
 		member();
 		if (ListFind(variables.scopeStack[1].actions, "edit")) {
-			$get(pattern="edit(.[format])", action="edit", name="edit");
+			get(pattern="edit(.[format])", action="edit", name="edit");
 		}
 		if (ListFind(variables.scopeStack[1].actions, "show")) {
-			$get(pattern="(.[format])", action="show");
+			get(pattern="(.[format])", action="show");
 		}
 		if (ListFind(variables.scopeStack[1].actions, "update")) {
 			patch(pattern="(.[format])", action="update");
@@ -60,15 +64,15 @@ public struct function end() {
 		}
 		if (ListFind(variables.scopeStack[1].actions, "new")) {
 			scope(path=variables.scopeStack[1].memberPath, $call="new");
-			$get(pattern="new(.[format])", action="new", name="new");
+			get(pattern="new(.[format])", action="new", name="new");
 			end();
 		}
 		member();
 		if (ListFind(variables.scopeStack[1].actions, "edit")) {
-			$get(pattern="edit(.[format])", action="edit", name="edit");
+			get(pattern="edit(.[format])", action="edit", name="edit");
 		}
 		if (ListFind(variables.scopeStack[1].actions, "show")) {
-			$get(pattern="(.[format])", action="show");
+			get(pattern="(.[format])", action="show");
 		}
 		if (ListFind(variables.scopeStack[1].actions, "update")) {
 			patch(pattern="(.[format])", action="update");
