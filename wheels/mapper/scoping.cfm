@@ -1,18 +1,18 @@
 <cfscript>
 
 /**
-	* Set certain parameters for future calls
-	* @param  {string}  name          Named route prefix
-	* @param  {string}  path          Path prefix
-	* @param  {string}  module        Namespace to append to controllers
-	* @param  {string}  controller    Controller to use in routes
-	* @param  {boolean} shallow       Turn on shallow resources
-	* @param  {string}  shallowPath   Shallow path prefix
-	* @param  {string}  shallowName   Shallow name prefix
-	* @param  {struct}  constraints   Variable patterns to use for matching
-	* @param  {string}  $call
-	* @return {struct}
-	*/
+ * Internal function.
+ * Set certain parameters for future calls.
+ *
+ * @name Named route prefix.
+ * @path Path prefix.
+ * @module Namespace to append to controllers.
+ * @controller Controller to use in routes.
+ * @shallow Turn on shallow resources.
+ * @shallowPath Shallow path prefix.
+ * @shallowName Shallow name prefix.
+ * @constraints Variable patterns to use for matching.
+ */
 public struct function scope(
 	string name,
 	string path,
@@ -26,7 +26,7 @@ public struct function scope(
 ) {
 
 	// Set shallow path and prefix if not in a resource.
-	if (!ListFindNoCase("resource,resources", scopeStack[1].$call)) {
+	if (!ListFindNoCase("resource,resources", variables.scopeStack[1].$call)) {
 		if (!StructKeyExists(arguments, "shallowPath") && StructKeyExists(arguments, "path")) {
 			arguments.shallowPath = arguments.path;
 		}
@@ -36,33 +36,33 @@ public struct function scope(
 	}
 
 	// Combine path with scope path.
-	if (StructKeyExists(scopeStack[1], "path") && StructKeyExists(arguments, "path")) {
-		arguments.path = normalizePattern(scopeStack[1].path & "/" & arguments.path);
+	if (StructKeyExists(variables.scopeStack[1], "path") && StructKeyExists(arguments, "path")) {
+		arguments.path = normalizePattern(variables.scopeStack[1].path & "/" & arguments.path);
 	}
 
 	// Combine module with scope module.
-	if (StructKeyExists(scopeStack[1], "module") && StructKeyExists(arguments, "module")) {
-		arguments.module = scopeStack[1].module & "." & arguments.module;
+	if (StructKeyExists(variables.scopeStack[1], "module") && StructKeyExists(arguments, "module")) {
+		arguments.module = variables.scopeStack[1].module & "." & arguments.module;
 	}
 
-	// combine name with scope name
-	if (StructKeyExists(arguments, "name") && StructKeyExists(scopeStack[1], "name")) {
-		arguments.name = scopeStack[1].name & capitalize(arguments.name);
+	// Combine name with scope name.
+	if (StructKeyExists(arguments, "name") && StructKeyExists(variables.scopeStack[1], "name")) {
+		arguments.name = variables.scopeStack[1].name & capitalize(arguments.name);
 	}
 
 	// Combine shallow path with scope shallow path.
-	if (StructKeyExists(scopeStack[1], "shallowPath") && StructKeyExists(arguments, "shallowPath")) {
-		arguments.shallowPath = normalizePattern(scopeStack[1].shallowPath & "/" & arguments.shallowPath);
+	if (StructKeyExists(variables.scopeStack[1], "shallowPath") && StructKeyExists(arguments, "shallowPath")) {
+		arguments.shallowPath = normalizePattern(variables.scopeStack[1].shallowPath & "/" & arguments.shallowPath);
 	}
 
 	// Copy existing constraints if they were previously set.
-	if (StructKeyExists(scopeStack[1], "constraints") && StructKeyExists(arguments, "constraints")) {
-		StructAppend(arguments.constraints, scopeStack[1].constraints, false);
+	if (StructKeyExists(variables.scopeStack[1], "constraints") && StructKeyExists(arguments, "constraints")) {
+		StructAppend(arguments.constraints, variables.scopeStack[1].constraints, false);
 	}
 
 	// Put scope arguments on the stack.
-	StructAppend(arguments, scopeStack[1], false);
-	ArrayPrepend(scopeStack, arguments);
+	StructAppend(arguments, variables.scopeStack[1], false);
+	ArrayPrepend(variables.scopeStack, arguments);
 
 	return this;
 }
@@ -81,7 +81,7 @@ public struct function namespace(
 /**
  * Internal function.
  */
-public struct function $controller(
+public struct function controller(
 	required string controller,
 	string name=arguments.controller,
 	string path=hyphenize(arguments.controller)
