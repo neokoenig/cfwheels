@@ -7,22 +7,21 @@ jdk:
   - oraclejdk8
 env:
   matrix:
-    # Lucee 4 with H2 emulation
+    # Lucee 4 with H2 emulation (works)
     #- CFENGINE=lucee@4.5.5+006 DB=H2 MODE=MySQL DBCLASS=org.h2.Driver
     #- CFENGINE=lucee@4.5.5+006 DB=H2 MODE=PostgreSQL DBCLASS=org.h2.Driver
     #- CFENGINE=lucee@4.5.5+006 DB=H2 MODE=Oracle DBCLASS=org.h2.Driver
     #- CFENGINE=lucee@4.5.5+006 DB=H2 MODE=MSSQLServer DBCLASS=org.h2.Driver
 
-    # Lucee 4/5 with Native MySQL + PostGres
+    # Lucee 4/5 with Native MySQL + PostGres (works)
     #- CFENGINE=lucee@4.5.5+006 DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=lucee@5.1.2+24  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=lucee@4.5.5+006 DB=PostgreSQL DBCLASS=org.postgresql.Driver
     #- CFENGINE=lucee@5.1.2+24  DB=PostgreSQL DBCLASS=org.postgresql.Driver
 
-    # ACF Tests....
+    # ACF Tests....{failing}
     - CFENGINE=adobe@11.0.11+301867 DB=MySQL DBCLASS=com.mysql.jdbc.Driver
-    - CFENGINE=adobe@11.0.11+301867 DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
-    #- CFENGINE=adobe@11.0.11+301867 DB=PostgreSql PORT=5432  DBCLASS=org.postgresql.Driver
+    - CFENGINE=adobe@11.0.11+301867 DB=PostgreSQL DBCLASS=org.postgresql.Driver
 
     #- CFENGINE=adobe@2016 DB=MySQL PORT=3306 user=root DBCLASS=org.gjt.mm.mysql.Driver
     #- CFENGINE=adobe@2016 DB=PostgreSql PORT=5432 user=postgres DBCLASS=org.postgresql.Driver
