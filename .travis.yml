@@ -8,22 +8,22 @@ jdk:
 env:
   matrix:
     # Lucee 4 with H2 emulation (works)
-    #- CFENGINE=lucee@4 DB=H2 MODE=MySQL DBCLASS=org.h2.Driver
-    #- CFENGINE=lucee@4 DB=H2 MODE=PostgreSQL DBCLASS=org.h2.Driver
-    #- CFENGINE=lucee@4 DB=H2 MODE=Oracle DBCLASS=org.h2.Driver
-    #- CFENGINE=lucee@4 DB=H2 MODE=MSSQLServer DBCLASS=org.h2.Driver
+    - CFENGINE=lucee@4 DB=H2 MODE=MySQL DBCLASS=org.h2.Driver
+    - CFENGINE=lucee@4 DB=H2 MODE=PostgreSQL DBCLASS=org.h2.Driver
+    - CFENGINE=lucee@4 DB=H2 MODE=Oracle DBCLASS=org.h2.Driver
+    - CFENGINE=lucee@4 DB=H2 MODE=MSSQLServer DBCLASS=org.h2.Driver
 
     # Lucee 4/5 with Native MySQL + PostGres (works)
-    #- CFENGINE=lucee@4  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
-    #- CFENGINE=lucee@5  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
-    #- CFENGINE=lucee@4  DB=PostgreSQL DBCLASS=org.postgresql.Driver
-    #- CFENGINE=lucee@5  DB=PostgreSQL DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@4  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@5  DB=MySQL DBCLASS=org.gjt.mm.mysql.Driver
+    - CFENGINE=lucee@4  DB=PostgreSQL DBCLASS=org.postgresql.Driver
+    - CFENGINE=lucee@5  DB=PostgreSQL DBCLASS=org.postgresql.Driver
 
     # ACF Tests....{failing}
     - CFENGINE=adobe@11 DB=MySQL DBCLASS=com.mysql.jdbc.Driver
     - CFENGINE=adobe@11 DB=PostgreSQL DBCLASS=org.postgresql.Driver
-    - CFENGINE=adobe@2016 DB=MySQL DBCLASS=com.mysql.jdbc.Driver
-    - CFENGINE=adobe@2016 DB=PostgreSql DBCLASS=org.postgresql.Driver
+    #- CFENGINE=adobe@2016 DB=MySQL DBCLASS=com.mysql.jdbc.Driver
+    #- CFENGINE=adobe@2016 DB=PostgreSql DBCLASS=org.postgresql.Driver
 before_install:
   # Get Commandbox
   - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
@@ -47,7 +47,7 @@ before_script:
   - if [[ "$DB" == "MySQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class="$DBCLASS" host=127.0.0.1 port=3306 username=travis password="" blob=true clob=true; fi
   - if [[ "$DB" == "PostgreSQL" ]]; then box cfconfig datasource save name=wheelstestdb database=wheelstestdb dbdriver=$DB class="$DBCLASS" host=127.0.0.1 port=5432 username=postgres password="" blob=true clob=true; fi
   # Disable sitewide error handler for ACF
-  #- if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
+  - if [[ "$CFENGINE" == "adobe@11" ]]; then box cfconfig set generalErrorTemplate=""; fi
   # Restart The Server
   - box server restart
   # Basically, we now run the wheels CLI test runner, pointing it to the current server
