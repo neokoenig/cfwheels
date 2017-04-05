@@ -1,12 +1,12 @@
 <cfscript>
 
 /**
- * Configure and return dbmigrate object.
+ * Configure and return dbmigrate object. Now uses /app mapping
  */
 public struct function init(
-	string migratePath="/db/migrate/",
-	string sqlPath="/db/sql/",
-	string templatePath="wheels/dbmigrate/templates/"
+	string migratePath="/app/db/migrate/",
+	string sqlPath="/app/db/sql/",
+	string templatePath="/wheels/dbmigrate/templates/"
 ) {
 	this.paths.migrate = ExpandPath(arguments.migratePath);
 	this.paths.sql = ExpandPath(arguments.sqlPath);
@@ -16,7 +16,12 @@ public struct function init(
 }
 
 /**
- * Migrates database to a specified version.
+ * Migrates database to a specified version. Whilst you can use this in your application, the recommended useage is via either the CLI or the provided GUI interface
+ *
+ * [section: Configuration]
+ * [category: Database Migrations]
+ *
+ * @version The Database schema version to migrate to
  */
 public string function migrateTo(string version="") {
 	local.rv = "";
@@ -47,7 +52,7 @@ public string function migrateTo(string version="") {
 							local.migration.cfc.down();
 							local.rv = local.rv & request.$wheelsMigrationOutput;
 							$removeVersionAsMigrated(local.migration.version);
-						} catch(any e) {
+						} catch (any e) {
 							local.rv = local.rv & "Error migrating to #local.migration.version#.#Chr(13)##e.message##Chr(13)##e.detail##Chr(13)#";
 							transaction action="rollback";
 							break;
@@ -71,7 +76,7 @@ public string function migrateTo(string version="") {
 							local.migration.cfc.up();
 							local.rv = local.rv & request.$wheelsMigrationOutput;
 							$setVersionAsMigrated(local.migration.version);
-						} catch(any e) {
+						} catch (any e) {
 							local.rv = local.rv & "Error migrating to #local.migration.version#.#Chr(13)##e.message##Chr(13)##e.detail##Chr(13)#";
 							transaction action="rollback";
 							break;
@@ -88,14 +93,20 @@ public string function migrateTo(string version="") {
 }
 
 /**
- * Returns current database version.
+ * Returns current database version. Whilst you can use this in your application, the recommended useage is via either the CLI or the provided GUI interface
+ *
+ * [section: Configuration]
+ * [category: Database Migrations]
  */
 public string function getCurrentMigrationVersion() {
 	return ListLast($getVersionsPreviouslyMigrated());
 }
 
 /**
- * Create a migration file.
+ * Creates a migration file. Whilst you can use this in your application, the recommended useage is via either the CLI or the provided GUI interface
+ *
+ * [section: Configuration]
+ * [category: Database Migrations]
  */
 public string function createMigration(
 	required string migrationName,
@@ -110,7 +121,12 @@ public string function createMigration(
 }
 
 /**
- * Searches db/migrate folder for migrations.
+ * Searches db/migrate folder for migrations. Whilst you can use this in your application, the recommended useage is via either the CLI or the provided GUI interface
+ *
+ * [section: Configuration]
+ * [category: Database Migrations]
+ *
+ * @path Path to Migration Files: defaults to /db/migrate/
  */
 public array function getAvailableMigrations(string path=this.paths.migrate) {
 	local.rv = [];
@@ -138,7 +154,7 @@ public array function getAvailableMigrations(string path=this.paths.migrate) {
 				if (ListFind(local.previousMigrationList, local.migration.version)) {
 					local.migration.status = "migrated";
 				}
-			} catch(any e) {
+			} catch (any e) {
 				local.migration.loadError = e.message;
 			}
 			ArrayAppend(local.rv, local.migration);
@@ -221,7 +237,7 @@ private string function $copyTemplateMigrationAndRename(
 		local.migrationFile = REREplace(Trim(local.migrationFile),"[\s]+", "_", "all");
 		local.migrationFile = $getNextMigrationNumber(arguments.migrationPrefix) & "_#local.migrationFile#.cfc";
 		FileWrite("#this.paths.migrate#/#local.migrationFile#", local.templateContent);
-	} catch(any e) {
+	} catch (any e) {
 		return "There was an error when creating the migration: #e.message#";
 	}
 	return "The migration #local.migrationFile# file was created";
@@ -241,7 +257,7 @@ private string function $getVersionsPreviouslyMigrated() {
 		} else {
 			return ValueList(local.migratedVersions.version);
 		}
-	} catch(any e) {
+	} catch (any e) {
 		$query(
 			datasource=application.wheels.dataSourceName,
 			sql="CREATE TABLE #application.wheels.dbmigrateTableName# (version VARCHAR(25))"

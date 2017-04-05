@@ -1,20 +1,8 @@
 component extends="Base" output=false {
 
-	public string function $generatedKey() {
-		local.rv = "generated_key";
-		return local.rv;
-	}
-
-	public string function $randomOrder() {
-		local.rv = "RAND()";
-		return local.rv;
-	}
-
-	public string function $defaultValues() {
-		local.rv = "() VALUES()";
-		return local.rv;
-	}
-
+	/**
+	 * Map database types to the ones used in CFML.
+	 */
 	public string function $getType(required string type) {
 		switch (arguments.type) {
 			case "bigint":
@@ -69,6 +57,9 @@ component extends="Base" output=false {
 		return local.rv;
 	}
 
+	/**
+	 * Call functions to make adapter specific changes to arguments before executing query.
+	 */
 	public struct function $querySetup(
 	  required array sql,
 	  numeric limit=0,
@@ -76,32 +67,18 @@ component extends="Base" output=false {
 	  required boolean parameterize,
 	  string $primaryKey=""
 	) {
-		arguments = $convertMaxRowsToLimit(arguments);
-		arguments.sql = $removeColumnAliasesInOrderClause(arguments.sql);
-		local.rv = $performQuery(argumentCollection=arguments);
-		return local.rv;
+		$convertMaxRowsToLimit(args=arguments);
+		$removeColumnAliasesInOrderClause(args=arguments);
+		$moveAggregateToHaving(args=arguments);
+		return $performQuery(argumentCollection=arguments);
 	}
 
-	public any function $identitySelect(
-	  required struct queryAttributes,
-	  required struct result,
-	  required string primaryKey
-	) {
-		var query = {};
-		local.sql = Trim(arguments.result.sql);
-		if (Left(local.sql, 11) IS "INSERT INTO" AND NOT StructKeyExists(arguments.result, $generatedKey())) {
-			local.startPar = Find("(", local.sql) + 1;
-			local.endPar = Find(")", local.sql);
-			local.columnList = ReplaceList(Mid(local.sql, local.startPar, (local.endPar-local.startPar)), "#Chr(10)#,#Chr(13)#, ", ",,");
-			if (! ListFindNoCase(local.columnList, ListFirst(arguments.primaryKey))) {
-				local.rv = {};
-				query = $query(sql="SELECT LAST_INSERT_ID() AS lastId", argumentCollection=arguments.queryAttributes);
-				local.rv[$generatedKey()] = query.lastId;
-				return local.rv;
-			}
-		}
+	/**
+	 * Override Base adapter's function.
+	 */
+	public string function $defaultValues() {
+		return "() VALUES()";
 	}
 
 	include "../../plugins/standalone/injection.cfm";
-
 }

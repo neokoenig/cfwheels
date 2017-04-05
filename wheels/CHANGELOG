@@ -12,6 +12,8 @@ Model Enhancements
 * Database Migrations (dbmigrate) now available in the core - #664 [Adam Chapman, Tom King, Mike Grogan]
 * New "timeStampMode" setting ("utc", "local" or "epoch") for the "createdAt" and "updatedAt" columns - [Andy Bellenie]
 * Allow nested transactions - #732 [Andy Bellenie]
+* The "handle" argument to finders now set the variable name for the query so it's easier to find in the debug output - [Per Djurner]
+* Support added for HAVING when using aggregate functions in the "where" argument - #483 [Per Djurner]
 
 View Enhancements
 =================
@@ -54,6 +56,10 @@ Miscellaneous
 * Added new embedded documentation viewer/generator for JavaDoc - #734 [Tom King]
 * Removes all references to Railo - #656 (Adam Chapman)
 * Made uncountable and irregular words configurable - #739 [Per Djurner]
+* Removed design mode - [Per Djurner]
+* Removed "cacheRoutes" setting - [Per Djurner]
+* The "cacheFileChecking" and "cacheImages" settings are now turned off in development mode - [Per Djurner]
+* Added "includeErrorInEmailSubject" setting - [Per Djurner]
 
 Breaking Changes
 ================
@@ -70,6 +76,7 @@ Breaking Changes
 * The events/functions.cfm file has been moved to global/functions.cfm.
 * The models/Model.cfc file should extend "wheels.Model" instead of "Wheels" (models/Wheels.cfc can be deleted).
 * The controllers/Controller.cfc file should extend "wheels.Controller" instead of "Wheels" (controllers/Wheels.cfc can be deleted).
+* The global setting "timeStampMode" defaults to UTC - #695 (Andy Bellenie)
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

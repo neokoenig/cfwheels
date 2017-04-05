@@ -1,75 +1,6 @@
 <cfscript>
 // Core API embedded documentation
 
-		/*
-		Just here at the moment for reference
-		{
-			"name" = "Model Initialization",
-			"categories" = [
-				"Association Functions",
-				"Callback Functions",
-				"Miscellaneous Functions",
-				"Validation Functions"
-			]
-		},
-		{
-			"name" = "Model Class",
-			"categories" = [
-				"Create Functions",
-				"Delete Functions",
-				"Miscellaneous Functions",
-				"Read Functions",
-				"Statistics Functions",
-				"Update Functions"
-			]
-		},
-		{
-			"name" = "Model Object",
-			"categories" = [
-				"Change Functions",
-				"CRUD Functions",
-				"Error Functions",
-				"Miscellaneous Functions"
-			]
-		},
-		{
-			"name" = "View Helpers",
-			"categories" = [
-				"Asset Functions",
-				"Date Functions",
-				"Error Functions",
-				"Form Association Functions",
-				"Form Object Functions",
-				"Form Tag Functions",
-				"General Form Functions",
-				"Link Functions",
-				"Miscellaneous Functions",
-				"Sanitization Functions",
-				"Text Functions"
-			]
-		},
-		{
-			"name" = "Controller",
-			"categories" = [
-				"Initialization Functions",
-				"Flash Functions",
-				"Rendering Functions",
-				"Pagination Functions",
-				"Provides Functions",
-				"Miscellaneous Functions"
-			]
-		},
-		{
-			"name" = "Global Helpers",
-			"categories" = [
-				"Miscellaneous Functions",
-				"String Functions"
-			]
-		},
-		{
-			"name" = "Configuration",
-			"categories" = []
-		}*/
 	param name="params.type" default="core";
 	param name="params.format" default="html";
 
@@ -78,41 +9,65 @@
 		"functions"=[]
 	};
 
-	temp={
-		"controller" = {
-			"scope" = "",
-			"functions" = ""
-		},
-		"model" = {
-			"scope" = "",
-			"functions" = ""
-		}
-	};
+	temp=[];
 
-	temp.controller.scope 		= createObject("component", "app.controllers.Controller");
-	temp.controller.functions 	= listSort(StructKeyList(temp.controller.scope), "textnocase");
-	temp.model.scope 			= createObject("component", "app.models.Model");
-	temp.model.functions 		= listSort(StructKeyList(temp.model.scope), "textnocase");
+	// Plugins First, as they can potentially hijack an internal function
+	for(local.plugin in application.wheels.plugins){
+		arrayAppend(temp, {
+			"name": local.plugin,
+			"scope":  application.wheels.plugins[local.plugin]
+		});
+	}
+	arrayAppend(temp, {
+			"name": "controller",
+			"scope": createObject("component", "app.controllers.Controller")
+	});
+	arrayAppend(temp, {
+			"name": "model",
+			"scope": createObject("component", "app.models.Model")
+	});
+	arrayAppend(temp, {
+			"name": "mapper",
+			"scope": application.wheels.mapper
+	});
+	arrayAppend(temp, {
+			"name": "migrator",
+			"scope": application.wheels.dbmigrate
+	});
+
 
 	// Array of functions to ignore
 	ignore = ["init"];
 
 	// Merge
 	for(doctype in temp){
+		doctype["functions"]=listSort(StructKeyList(doctype.scope), "textnocase");
 		// Populate A-Z function List
-		for(functionName in listToArray(temp[doctype]['functions']) ){
-			// Ignore internal functions
-			if(left(functionName, 1) != "$" && !ArrayFindNoCase(ignore, functionName)){
-				// Check this isn't a dupe, but record which scope this was from
-				if( !ArrayFind(docs.functions, function(struct){
-				   return struct.name == functionName;
-				})){
-					// Set metadata
-					meta=$parseMetaData(GetMetaData(temp[doctype]["scope"][functionName]), doctype, functionName);
-					arrayAppend(docs.functions, meta);
-				} else {
-					if(!ArrayFind(meta.availableIn, doctype)){
-						arrayAppend(meta.availableIn, doctype);
+		for(local.functionName in listToArray(doctype.functions) ){
+
+			local.meta={};
+			local.hint="";
+			// Check this is actually a function: dbmigrate stores a struct for instance
+			// Don't display internal functions, duplicates or anything in the ignore list
+			if(left(local.functionName, 1) != "$"
+				&& !ArrayFindNoCase(ignore, local.functionName)
+				&& isCustomFunction(doctype.scope[local.functionName])
+			){
+				// Get metadata
+				local.meta=$parseMetaData(GetMetaData(doctype.scope[local.functionName]), doctype.name, local.functionName);
+				local.hint=local.meta.hint;
+
+				if(local.meta.name != "$pluginRunner"){
+
+					// Look for identically named functions: just looking for name isn't enough, we need to compare the hint too
+					local.match=arrayFind(docs.functions, function(struct){
+						return (struct.name == functionName && struct.hint == hint);
+					});
+
+					if(local.match){
+						arrayAppend(docs.functions[local.match]["availableIn"], doctype.name);
+					} else {
+						arrayAppend(docs.functions, local.meta);
 					}
 				}
 			}
@@ -120,7 +75,7 @@
 		docs.functions = $arrayOfStructsSort(docs.functions, "name");
 	}
 
-	// Look for custom categories:
+	// Look for section & category:
 	for(doc in docs.functions){
 		if(structKeyExists(doc.tags, "section") && len(doc.tags.section)){
 			if( !ArrayFind(docs.sections, function(struct){

@@ -22,7 +22,7 @@
 			<a href="" class="docreset"><i class="fa fa-eye"></i> All</a>
 			<cfloop from="1" to="#arraylen(docs.functions)#" index="func">
 			<cfset meta=docs.functions[func]>
-				<a href="" class="functionlink"	data-section="#meta.tags.sectionClass#" data-category="#meta.tags.categoryClass#" data-function="#lcase(meta.name)#">#meta.name#()</a>
+				<a href="" class="functionlink"	data-section="#meta.tags.sectionClass#" data-category="#meta.tags.categoryClass#" data-function="#lcase(meta.slug)#">#meta.name#()</a>
 			</cfloop>
 		</p>
     </div><!--/col-->
@@ -33,6 +33,7 @@
 			<div id="#lcase(meta.name)#"
 				data-section="#meta.tags.sectionClass#"
 				data-category="#meta.tags.categoryClass#"
+				data-function="#lcase(meta.slug)#"
 				class="functiondefinition">
 					<h3 class="functitle">#meta.name#()</h3>
 					<p>
@@ -43,9 +44,6 @@
 					<cfif len(meta.tags.category)>
 						<a href="" class="filtercategory tag" title="Show all Functions in this category">
 						<i class="fa fa-tag"></i> #meta.tags.category#</a>
-					</cfif>
-					<cfif meta.isPlugin>
-						<span class="tag"><i class="fa fa-plug"></i> Plugin</span>
 					</cfif>
 					<cfif structKeyExists(meta, "returnType")>
 						<span class="tag"><i class="fa fa-reply"></i> #meta.returnType#</span>
@@ -62,7 +60,6 @@
 
 					<cfif isArray(meta.parameters) && arraylen(meta.parameters)>
 						<table>
-						<caption>Parameters</caption>
 						<thead>
 							<tr>
 								<th>Name</th>
@@ -79,7 +76,7 @@
 								<tr>
 									<td class='code'>#_param.name#</td>
 									<td class='code'>#_param.type#</td>
-									<td class='code'>#_param.required#</td>
+									<td class='code'>#YesNoFormat(_param.required)#</td>
 									<td class='code'>
 									<cfif
 										structKeyExists(application.wheels.functions, func)
@@ -155,6 +152,7 @@ $(document).ready(function(){
 
 	function filterByFunctionName(name){
 		$("#right").find(".functiondefinition").hide().end()
+				   .find("[data-function='" + name + "']").show().end()
 				   .find("#" + name).show();
 		window.location.hash="#" + name;
 	}

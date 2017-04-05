@@ -108,72 +108,53 @@ if (!StructKeyExists(request, "TESTING_FRAMEWORK_DEBUGGING")) {
 	request["TESTING_FRAMEWORK_DEBUGGING"] = {};
 }
 
-/*
-	Called from a test function.  If expression evaluates to false,
-	record a failure against the test.
-
-	@param	expression	String containing CFML expression to evaluate
-	@param	2..n		Optional. String(s) containing space-delimited list
-						of variables to evaluate and include in the
-						failure message to help determine cause of failed
-						assertion.
-	*/
-
-	public void function assert(required string expression) {
-
+/**
+ * Called from a test function.
+ * If expression evaluates to false, record a failure against the test.
+ *
+ * @expression String containing CFML expression to evaluate.
+ * @2..n String(s) containing space-delimited list of variables to evaluate and include in the failure message to help determine cause of failed assertion.
+ */
+public void function assert(required string expression) {
 	// Convert "yes" / "no" to true / false.
 	arguments.expression = arguments.expression == "yes" ? true : arguments.expression;
 	arguments.expression = arguments.expression == "no" ? false : arguments.expression;
 
-		var token = "";
-		var tokenValue = "";
-		var message = "assert failed: #arguments.expression#";
-		var newline = chr(10) & chr(13);
-		var i = "";
-		var evaluatedTokens = "";
-
-		if (! evaluate(arguments.expression)) {
-
-			for (i in arguments) {
-
-				expr = arguments[i];
-				evaluatedTokens = {};
-
-				/*
-				Double pass of expressions with different delimiters so that for expression "a(b) or c[d]",
-				"a(b)", "c[d]", "b" and "d" are evaluated.  Do not evaluate any expression more than once.
-				*/
-
-				for (token in listToArray("#expr# #reReplace(expr, "[([\])]", " ")#", " +=-*/%##")) {
-
-					if (! structKeyExists(evaluatedTokens, token)) {
-
+	var token = "";
+	var tokenValue = "";
+	var message = "assert failed: #arguments.expression#";
+	var newline = Chr(10) & Chr(13);
+	var i = "";
+	var evaluatedTokens = "";
+	if (!Evaluate(arguments.expression)) {
+		for (i in arguments) {
+			local.expr = arguments[i];
+			evaluatedTokens = {};
+			// Double pass of expressions with different delimiters so that for expression "a(b) or c[d]", "a(b)", "c[d]", "b" and "d" are evaluated. Do not evaluate any expression more than once.
+			for (token in ListToArray("#local.expr# #ReReplace(local.expr, "[([\])]", " ")#", " +=-*/%##")) {
+				if (!StructKeyExists(evaluatedTokens, token)) {
 					evaluatedTokens[token] = true;
-					tokenValue = "__INVALID__";
-
-					if (! (isNumeric(token) or isBoolean(token))) {
-							try {
-								tokenValue = evaluate(token);
-							} catch(expression e) {
-							}
+					local.tokenValue = "__INVALID__";
+					if (!(IsNumeric(token) || IsBoolean(token))) {
+						try {
+							local.tokenValue = Evaluate(token);
+						} catch (any e) {}
 					}
-
-					/*
-						Format token value according to type
-					*/
-					if ((! isSimpleValue(tokenValue)) or (tokenValue neq "__INVALID__")) {
-
-						if (isSimpleValue(tokenValue)) {
-							if (! (isNumeric(tokenValue) or isBoolean(tokenValue))) {
-								tokenValue ="'#tokenValue#'";
+					// Format token value according to type.
+					if ((!IsSimpleValue(local.tokenValue)) || (local.tokenValue != "__INVALID__")) {
+						if (IsSimpleValue(local.tokenValue)) {
+							if (!(IsNumeric(local.tokenValue) || IsBoolean(local.tokenValue))) {
+								local.tokenValue = "'#local.tokenValue#'";
 							}
 						} else {
-							if (isArray(tokenValue)) {
-								tokenValue = "array of #arrayLen(tokenValue)# items";
-							} else if (isStruct(tokenValue)) {
-								tokenValue = "struct with #structCount(tokenValue)# members";
-							} else if (IsCustomFunction(tokenValue)) {
-								tokenValue = "UDF";
+							if (IsArray(local.tokenValue)) {
+								local.tokenValue = "Array containing #ArrayLen(local.tokenValue)# items";
+							} else if (IsStruct(local.tokenValue)) {
+								local.tokenValue = "Struct with #StructCount(local.tokenValue)# members";
+							} else if (IsQuery(local.tokenValue)) {
+								local.tokenValue = "Query with #local.tokenValue.RecordCount# rows";
+							} else if (IsCustomFunction(local.tokenValue)) {
+								local.tokenValue = "UDF";
 							}
 						}
 						message = message & newline & token & " = " & tokenValue;
@@ -227,7 +208,7 @@ public any function debug(required string expression, boolean display=true) {
 		writeDump(attributeCollection=attributeArgs);
 	}
 
-	if (! StructKeyExists(request["TESTING_FRAMEWORK_DEBUGGING"], TESTING_FRAMEWORK_VARS.RUNNING_TEST)) {
+	if (!StructKeyExists(request["TESTING_FRAMEWORK_DEBUGGING"], TESTING_FRAMEWORK_VARS.RUNNING_TEST)) {
 		request["TESTING_FRAMEWORK_DEBUGGING"][TESTING_FRAMEWORK_VARS.RUNNING_TEST] = [];
 	}
 	arrayAppend(request["TESTING_FRAMEWORK_DEBUGGING"][TESTING_FRAMEWORK_VARS.RUNNING_TEST], dump);
@@ -240,7 +221,7 @@ public any function debug(required string expression, boolean display=true) {
 public string function raised(required string expression) {
 	try {
 		evaluate(arguments.expression);
-	} catch(any e) {
+	} catch (any e) {
 		return trim(e.type);
 	}
 	return "";
@@ -266,13 +247,14 @@ public boolean function $runTest(string resultKey="test", string testname="") {
 	var numTestErrors = 0;
 	var newline = chr(10) & chr(13);
 	var func = "";
+	var functions = "";
 	var tagContext = "";
 	var context = "";
 
 	/*
 		Check for and if necessary set up the structure to store test results
 	*/
-	if (! StructKeyExists(request, resultKey)) {
+	if (!StructKeyExists(request, resultKey)) {
 		$resetTestResults(resultKey);
 	}
 
@@ -283,8 +265,11 @@ public boolean function $runTest(string resultKey="test", string testname="") {
 		invoking methods starting in "test".  Wrap with calls to setup()
 		and teardown() if provided.
 	*/
-
-	functions = getMetadata(this).functions;
+	if(!structKeyExists(getMetadata(this), "functions")){
+		functions="";
+	} else {
+		functions = getMetadata(this).functions;
+	}
 	for (func in functions) {
 		keyList = ListAppend(keyList, func.name);
 	};
@@ -310,7 +295,7 @@ public boolean function $runTest(string resultKey="test", string testname="") {
 				status = "Success";
 				request[resultkey].numSuccesses = request[resultkey].numSuccesses + 1;
 
-			} catch(any e) {
+			} catch (any e) {
 
 				message = e.message;
 
@@ -512,7 +497,7 @@ public boolean function $isValidTest(
 
 	if (Len(arguments.shouldExtend)) {
 		local.metadata = GetComponentMetaData(arguments.component);
-		if (! StructKeyExists(local.metadata, "extends") or ListLast(local.metadata.extends.fullname, ".") neq arguments.shouldExtend) {
+		if (!StructKeyExists(local.metadata, "extends") or ListLast(local.metadata.extends.fullname, ".") neq arguments.shouldExtend) {
 			return false;
 		}
 	}
@@ -528,8 +513,8 @@ public boolean function $isValidTest(
 }
 
 /*
-	* removes the base test directory from the test name to make them prettier and more readable
-	*/
+ * Removes the base test directory from the test name to make them prettier and more readable.
+ */
 public string function $cleanTestCase(
 	required string name,
 	string path=TESTING_FRAMEWORK_VARS.WHEELS_TESTS_BASE_COMPONENT_PATH
@@ -538,8 +523,8 @@ public string function $cleanTestCase(
 }
 
 /*
-	* cleans up the test name so they are more readable
-	*/
+ * Cleans up the test name so they are more readable.
+ */
 public string function $cleanTestName(required string name) {
 	local.rv = arguments.name;
 	if (Find("_", local.rv)) {
@@ -553,15 +538,15 @@ public string function $cleanTestName(required string name) {
 }
 
 /*
-	* cleans up the test path
-	*/
+ * Cleans up the test path.
+ */
 public string function $cleanTestPath(required string path) {
 	return ListChangeDelims(Replace(arguments.path, TESTING_FRAMEWORK_VARS.ROOT_TEST_PATH, ""), ".", ".");
 }
 
 /*
-	* this resolves all the paths needed to run the tests
-	*/
+ * This resolves all the paths needed to run the tests.
+ */
 public struct function $resolvePaths(struct options={}) {
 
 	local.rv = {};
@@ -609,7 +594,7 @@ public struct function $resolvePaths(struct options={}) {
 	local.rv.relative_test_path = "/" & listchangedelims(local.rv.test_path, "/", ".");
 	local.rv.full_test_path = expandPath(local.rv.relative_test_path);
 
-	if (! DirectoryExists(local.rv.full_test_path)) {
+	if (!DirectoryExists(local.rv.full_test_path)) {
 		if (FileExists(local.rv.full_test_path & ".cfc")) {
 			local.rv.test_filter = reverse(listfirst(reverse(local.rv.test_path), "."));
 			local.rv.test_path = reverse(listrest(reverse(local.rv.test_path), "."));
@@ -631,23 +616,20 @@ public struct function $resolvePaths(struct options={}) {
 }
 
 /*
-	* returns a query containing all the test to run and their directory path
-	*/
+ * Returns a query containing all the test to run and their directory path.
+ */
 public query function $listTestPackages(struct options={}, string filter="*") {
-
-	local.rv = QueryNew("package","Varchar");
-
+	local.rv = QueryNew("package", "Varchar");
 	local.paths = $resolvePaths(arguments.options);
 	$initialiseTestEnvironment(local.paths, arguments.options);
-
 	local.packages = DirectoryList(local.paths.full_test_path, true, "query", "#arguments.filter#.cfc");
 	for (local.package in local.packages) {
 		local.packageName = ListChangeDelims(RemoveChars(local.package.directory, 1, Len(local.paths.full_test_path)), ".", "\/");
-		// directories that begin with an underscore are ignored
-		if (! ReFindNoCase("(^|\.)_", local.packageName)) {
+		// Directories that begin with an underscore are ignored.
+		if (!ReFindNoCase("(^|\.)_", local.packageName)) {
 			local.packageName = ListPrepend(local.packageName, local.paths.test_path, ".");
 			local.packageName = ListAppend(local.packageName, ListFirst(local.package.name, "."), ".");
-			// ignore invalid packages
+			// Ignore invalid packages.
 			if ($isValidTest(local.packageName)) {
 				QueryAddRow(local.rv);
 				QuerySetCell(local.rv, "package", local.packageName);
@@ -658,23 +640,20 @@ public query function $listTestPackages(struct options={}, string filter="*") {
 }
 
 /*
-	* Initialises the test environment and populates test database
-	*/
-public void function $initialiseTestEnvironment(
-	required struct paths,
-	required struct options
-) {
+ * Initialises the test environment and populates test database.
+ */
+public void function $initialiseTestEnvironment(required struct paths, required struct options) {
 	if (FileExists(arguments.paths.full_root_test_path & "/env.cfm")) {
-		include "#arguments.paths.relative_root_test_path & '/env.cfm'#";
+		include "#arguments.paths.relative_root_test_path#/env.cfm";
 	}
 }
 
 /*
-	* Returns true if a file path is a wheels core file
-	*/
+ * Returns true if a file path is a wheels core file.
+ */
 public any function $isCoreFile(required string path) {
 	local.path = Replace(arguments.path, ExpandPath("/"), "", "one");
-	return (Left(local.path, 7) eq "wheels/" || ListFindNoCase("index.cfm,rewrite.cfm,root.cfm", local.path));
+	return (Left(local.path, 7) == "wheels/" || ListFindNoCase("index.cfm,rewrite.cfm,root.cfm", local.path));
 }
 
 </cfscript>
